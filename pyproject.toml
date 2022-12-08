@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "pr-sim-legacy-integrator"
+version = "0.1.0"
+description = ""
+authors = ["Frank Ricardo Ramirez <frank.ramirez@solfacil.com.br>"]
+readme = "README.md"
+packages = [{include = "pr"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+djangorestframework = "^3.14.0"
+django-filter = "^22.1"
+markdown = "^3.4.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
