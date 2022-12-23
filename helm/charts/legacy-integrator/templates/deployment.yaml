@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.app.hpa.minReplicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.app.rollingUpdate.maxSurge }} # Define o número máximo de Pods excedentes
+      maxUnavailable: {{ .Values.app.rollingUpdate.maxUnavailable }} # Define o númo máximo de Pods indisponíveis
+    type: RollingUpdate
+  minReadySeconds: {{ .Values.app.minReadySeconds }} # Os Pods antigos ainda estarão em execução quando o novo Pod for estabelecido. Após 120s os Pods antigos serão mortos
+  template:
+    metadata:
+      labels:
+        release: {{ .Release.Name }}
+        app: {{ .Release.Name }}
+      annotations:
+        timestamp: {{ now | quote }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}
+      affinity:
+        {{- if .Values.app.nodeAffinity.enabled }}
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: "eks.amazonaws.com/capacityType"
+                  operator: In
+                  values:
+                    - {{ .Values.app.nodeAffinity.capacityType }}
+                {{- if .Values.app.nodeAffinity.additionalAffinity }}
+                - key: {{ .Values.app.nodeAffinity.key }}
+                  operator: {{ .Values.app.nodeAffinity.operator }}
+                  values:
+                    - {{ .Values.app.nodeAffinity.values }}
+                {{- end }}
+        {{- end }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - {{ .Release.Name }} # Opcionalmente meus pods irão rodar em nodes diferentes.
+              topologyKey: kubernetes.io/hostname # Uma label que exista nos nodes.
+      terminationGracePeriodSeconds: 60 # Aguarda que o pod seja finalizado em até 60s.
+      containers:
+      - name: {{ .Chart.Name }}
+        image: {{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}
+        imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+        resources:
+          requests:
+            cpu: {{ .Values.app.requests.cpu }}
+            memory: {{ .Values.app.requests.memory }}
+          limits:
+            cpu: {{ .Values.app.limits.cpu }}
+            memory: {{ .Values.app.limits.memory }}
+        ports:
+        - containerPort: {{ .Values.app.container.port }}
+          name: epmd
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: {{ .Values.app.readinessProbe.failureThreshold }}
+          httpGet:
+            path: {{ .Values.app.readinessProbe.path }}
+            port: {{ .Values.app.container.port }}
+            scheme: HTTP
+          initialDelaySeconds: {{ .Values.app.readinessProbe.initialDelaySeconds }}
+          timeoutSeconds: {{ .Values.app.readinessProbe.timeoutSeconds }}
+          periodSeconds: {{ .Values.app.readinessProbe.periodSeconds }} 
+        livenessProbe:
+          failureThreshold: {{ .Values.app.livenessProbe.failureThreshold }}
+          httpGet:
+            path: {{ .Values.app.livenessProbe.path }}
+            port: {{ .Values.app.container.port }}
+            scheme: HTTP
+          initialDelaySeconds: {{ .Values.app.livenessProbe.initialDelaySeconds }}
+          timeoutSeconds: {{ .Values.app.livenessProbe.timeoutSeconds }}
+          periodSeconds: {{ .Values.app.livenessProbe.periodSeconds }} 
+        env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+        {{ if .Values.app.datadog.enabled }}
+          - name: DATADOG_HOST
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
+        {{ end }}
+        envFrom:
+        - secretRef:
+            name: {{ .Release.Name }}
