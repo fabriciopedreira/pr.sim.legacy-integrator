@@ -14,7 +14,7 @@ spec:
   - websecure
   routes:
   - kind: Rule
-    match: Host(`{{ .Values.app.ingress.host }}.solfacil.com.br`)
+    match: Host(`{{ .Values.app.ingress.host }}`)
     services:
     - kind: Service
       name: {{ .Release.Name }}

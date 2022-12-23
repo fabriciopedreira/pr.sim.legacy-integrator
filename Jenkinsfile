@@ -36,7 +36,9 @@ pipeline {
                             export REPOSITORY_URI="${AWS_ACCOUNT_ID_SHD}.dkr.ecr.${REGION}.amazonaws.com/${APPLICATION_NAME}"
                                                      
                             $(aws ecr get-login --region ${REGION} --no-include-email)
-                                                    
+
+                            mv .env-sample .env
+
                             COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker build -t ${REPOSITORY_URI}:${IMAGE_TAG} .
                         '''
                     }
