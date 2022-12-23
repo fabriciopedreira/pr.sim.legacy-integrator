@@ -1,0 +1,70 @@
+app:
+
+  libclusterEnabled: false # Essa aplicação utiliza libcluster?
+
+  container:
+    port: 80 # containerPort
+
+  readinessProbe:
+    path: /healthcheck # endpoint to do a healthcheck
+    failureThreshold: 3
+    initialDelaySeconds: 10 # Wait 10 seconds for the first healthCheck
+    timeoutSeconds: 1 # Max timeout (in seconds) 
+    periodSeconds: 5 # Do a HealthCheck every 5 seconds
+
+  livenessProbe:
+    path: /healthcheck # endpoint to do a healthcheck
+    failureThreshold: 3
+    initialDelaySeconds: 60 # Wait 60 seconds for the first healthCheck
+    timeoutSeconds: 1 # Max timeout (in seconds) 
+    periodSeconds: 5 # Do a HealthCheck every 5 seconds
+
+  image:
+    repository: 882900074471.dkr.ecr.us-east-1.amazonaws.com/legacy-integrator
+    tag: latest  
+    pullPolicy: Always
+
+  datadog:
+    enabled: true
+
+  hpa:
+    minReplicas: 3
+    maxReplicas: 10
+    averageUtilization: 70 # This value set the max of CPU utilization to autoscale HPA
+
+  ingress:
+    enabled: true # If True - Application will be accessed externally via external DNS on Cloudflare.
+    host: legacy-integrator.solfacil.com.br # CNAME created in cloudflare for the application
+
+  service: 
+    port: 80 # servicePort
+
+  rollingUpdate:
+    maxSurge: 50%
+    maxUnavailable: 1
+
+  requests:
+    cpu: 1
+    memory: 1Gi
+
+  limits:
+    cpu: 4
+    memory: 4Gi
+
+  secret:
+  existSecret:
+  PodDisruptionBudget: true
+  minReadySeconds: 120
+
+  nodeAffinity:
+    enabled: false
+    capacityType: "ON_DEMAND" # Instance type from AWS ( You can use "ON_DEMAND" or "SPOT" instances. )
+    additionalAffinity: true # if "true", you can add additional Affinity.
+    key: "workload"
+    operator: In
+    values: ondemand-apps
+
+middleware:
+  enabled: true # If True - The application will send the access to the middleware before the service (traefik-forward-oauth).
+  name: "traefik-forward-auth"
+  namespace: "oauth"

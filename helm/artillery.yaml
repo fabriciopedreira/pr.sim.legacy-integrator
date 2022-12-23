@@ -1,0 +1,30 @@
+# Explicações do output
+# Scenarios launched / Número de usuários virtuais criados nos 10 segundos anteriores
+
+# Scenarios completed
+#Número de usuários virtuais que concluíram seus cenários nos 10 segundos anteriores (ou em todo o teste).
+
+# Requests completed
+# Número de solicitações e respostas HTTP
+
+# RPS sent
+# Número médio de solicitações por segundo concluídas nos 10 segundos anteriores (ou durante o teste)
+
+# Request latency
+# São valores em milissegundos de latência da requisição. Latência mínima, máxima e média;
+# Os valores de p95 e p99 são os valores da latência com 95% e 99% das requisições feitas (um valor de p99 de latência de solicitação de 500ms significa que 99 de 100 solicitações demoraram 500ms ou menos para serem concluídas).
+
+# Codes 
+# Fornece a análise dos códigos de resposta HTTP recebidos. Em nosso teste, todas as requisições foram executadas com sucesso, retornaram 201(Created) -* Caso você tenha dúvidas dos códigos HTTP, veja nesse link, como trabalhar com os códigos corretos
+
+
+
+config:
+  target: "https://pricing-legacy-integrator.solfacil.com.br"
+  phases:
+    - duration: 1 # Durante 100 segundos, vou realizar 100 chamadas por segundos no site.
+      arrivalRate: 3000 # a quantidade de requisições por segundo configurado na propriedade duration.
+scenarios:
+    - flow:
+        - get:
+            url: "/swaggerui"

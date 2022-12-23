@@ -1,0 +1,27 @@
+{{- if .Values.app.ingress.enabled }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+    traefik_version: 10.3.2
+spec:
+  entryPoints:
+  - web
+  - websecure
+  routes:
+  - kind: Rule
+    match: Host(`{{ .Values.app.ingress.host }}.solfacil.com.br`)
+    services:
+    - kind: Service
+      name: {{ .Release.Name }}
+      port: {{ .Values.app.service.port }}
+    {{- if .Values.middleware.enabled }}
+    middlewares:
+    - name: {{ .Values.middleware.name }}
+      namespace: {{ .Values.middleware.namespace }}
+    {{- end }}
+{{- end }}

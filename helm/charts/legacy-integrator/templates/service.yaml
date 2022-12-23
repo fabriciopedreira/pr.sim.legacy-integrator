@@ -1,0 +1,33 @@
+{{- if .Values.app.libclusterEnabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-svc-headless
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: epmd
+      port: 4369
+      targetPort: epmd
+      protocol: TCP
+  selector:
+    app: {{ .Release.Name }}
+{{- end }}
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  selector:
+    app: {{ .Release.Name }}
+  ports:
+    - name: http
+      port: {{ .Values.app.service.port }}
+      targetPort: {{ .Values.app.container.port }}

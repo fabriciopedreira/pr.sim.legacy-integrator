@@ -1,0 +1,5 @@
+{{- if .Values.app.ingress.enabled }}
+A aplicação {{ .Release.Name }} foi deployada com sucesso!
+
+Acesse a sua aplicação clicando na seguinte url: https://{{ .Values.app.ingress.host }}
+{{- end }}

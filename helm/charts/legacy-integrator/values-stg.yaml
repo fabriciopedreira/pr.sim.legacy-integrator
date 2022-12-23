@@ -1,0 +1,73 @@
+app:
+
+  libclusterEnabled: false # Essa aplicação utiliza libcluster?
+
+  container:
+    port: 80 # containerPort
+
+  readinessProbe:
+    path: /healthcheck # endpoint to do a healthcheck
+    failureThreshold: 3
+    initialDelaySeconds: 10 # Aguarda 10s para fazer a primeira checagem
+    timeoutSeconds: 1 # Timeout máximo de 1s
+    periodSeconds: 5 # Faz a checagem a cada 5s
+
+  livenessProbe:
+    path: /healthcheck # endpoint to do a healthcheck
+    failureThreshold: 3
+    initialDelaySeconds: 60 # Aguarda 60s para fazer a primeira checagem
+    timeoutSeconds: 1 # Timeout máximo de 1s
+    periodSeconds: 5 # Faz a checagem a cada 5s
+
+  image:
+    repository: 882900074471.dkr.ecr.us-east-1.amazonaws.com/legacy-integrator
+    tag: latest
+    pullPolicy: Always
+
+  datadog:
+    enabled: false
+
+  hpa:
+    minReplicas: 1
+    maxReplicas: 2
+    averageUtilization: 70
+
+  ingress:
+    enabled: true
+    host: legacy-integrator
+
+  service: 
+    port: 80
+
+  rollingUpdate:
+    maxSurge: 0
+    maxUnavailable: 2
+
+  requests:
+    cpu: 300m
+    memory: 215Mi
+
+  limits:
+    cpu: 500m
+    memory: 384Mi
+
+  minReadySeconds: 30
+  PodDisruptionBudget: false
+
+  #secret:
+  #existSecret:
+  PodDisruptionBudget: false
+  minReadySeconds: 120
+
+  nodeAffinity:
+    enabled: false
+    capacityType: "ON_DEMAND" # Instance type from AWS ( You can use "ON_DEMAND" or "SPOT" instances. )
+    additionalAffinity: true # if "true", you can add additional Affinity.
+    key: "workload"
+    operator: In
+    values: ondemand-apps
+
+middleware:
+  enabled: true # If True - The application will send the access to the middleware before the service (traefik-forward-oauth).
+  name: "traefik-forward-auth"
+  namespace: "oauth"
