@@ -3,7 +3,7 @@ app:
   libclusterEnabled: false # Essa aplicação utiliza libcluster?
 
   container:
-    port: 80 # containerPort
+    port: 8000 # containerPort
 
   readinessProbe:
     path: /healthcheck # endpoint to do a healthcheck
@@ -34,7 +34,7 @@ app:
 
   ingress:
     enabled: true
-    host: legacy-integrator
+    host: stg-legacy-integrator.solfacil.com.br
 
   service: 
     port: 80
