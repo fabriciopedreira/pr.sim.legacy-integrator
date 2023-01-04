@@ -74,7 +74,7 @@ This document presents the basic information of the **API - Legacy Integrator (S
     export KEYCLOAK_BASE_URL=https://staging-sso.solfacil.com.br
     ```
 
-5. Execute the application:
+5. Run the application:
    - First - create postgres database (using Docker): 
      ```shell
      make localdb
