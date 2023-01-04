@@ -61,7 +61,7 @@ This document presents the basic information of the **API - Legacy Integrator (S
     ```
 
 4. Configure environment variables:
-    > **_NOTE:_** A local PostgreSQL database will be required, se the **.env-sample** file.
+    > **_NOTE:_** A local PostgreSQL database will be required, see the **.env-sample** file.
     ```shell
     export DATABASE_PORT=5432
     export DATABASE_HOST=localhost
