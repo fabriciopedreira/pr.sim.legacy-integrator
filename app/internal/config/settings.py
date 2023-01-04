@@ -47,7 +47,7 @@ DATABASE_URL = config(
     default=f"postgresql+psycopg2://{DATABASE_USER}:{DATABASE_PASS}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}",
 )
 
-DATABASE_SCHEMA = config("DATABASE_SCHEMA", cast=str, default="pricing_strategies")
+DATABASE_SCHEMA = config("DATABASE_SCHEMA", cast=str, default="public")
 
 # MODE for environment
 MODE = config("MODE", cast=str, default="DEV")

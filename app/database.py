@@ -24,9 +24,6 @@ try:
 
     engine = sqlalchemy.create_engine(DATABASE_URL, pool_pre_ping=True)
 
-    if not engine.dialect.has_schema(engine, DATABASE_SCHEMA):
-        engine.execute(CreateSchema(DATABASE_SCHEMA))
-
     logger.success("[+] Create database engine")
 
     if MODE == "PRD":

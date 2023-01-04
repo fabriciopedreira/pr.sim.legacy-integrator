@@ -40,7 +40,7 @@ This document presents the basic information of the **API - Legacy Integrator (S
 ### Via Local 
 1. Clone the api repository:
     ```shell
-    git clone git@github.com:solfacil/pr.sim.legacy-integrator.git
+    git clone git@github.com:solfacil/pr.sim.legacy_query-integrator.git
     ```
 
 2. Install Poetry:

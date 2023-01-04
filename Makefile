@@ -64,11 +64,6 @@ run:
 	@poetry run uvicorn app.main:application --port 8000 --workers 3 --reload
 
 
-# Database migration tool
-alembic-upgrade:
-	@poetry run alembic upgrade heads
-
-
 # Dev tools
 localdb:
 	@docker run --name basic-postgres --rm -e POSTGRES_USER=solfacil_local_dev -e POSTGRES_PASSWORD=solfacil_local_dev -p 5432:5432 -it postgres:14.1-alpine
