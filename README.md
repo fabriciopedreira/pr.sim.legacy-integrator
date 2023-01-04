@@ -1,7 +1,7 @@
 
 # API documentation - **Legacy Integrator (Simulation)**
 
-This document presents the basic information of the **API - Legacy Integrator (Simulation)**. For more information, contact the developers at [Contacts](#6.-Contacts).
+This document presents the basic information of the **API - Legacy Integrator (Simulation)**. For more information, contact the developers at [Contacts](#4.Contacts).
 
 # Version control
 
