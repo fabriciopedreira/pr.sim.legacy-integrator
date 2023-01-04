@@ -1,7 +1,7 @@
 
 # API documentation - **Legacy Integrator (Simulation)**
 
-This document presents the basic information of the **API - Legacy Integrator (Simulation)**. For more information, contact the developers at [Contacts](#4.Contacts).
+This document presents the basic information of the **API - Legacy Integrator (Simulation)**. For more information, contact the developers at [Contacts](#4-Contacts).
 
 # Version control
 
@@ -11,13 +11,13 @@ This document presents the basic information of the **API - Legacy Integrator (S
 
 # Summary
 
-1. [Product Overview](#1.-Product-Overview)
+1. [Product Overview](#1-Product-Overview)
 
 2. [Endpoint List](#2-Endpoint-List)
 
-3. [Environment Preparation](#3.-Environment-Preparation)
+3. [Environment Preparation](#3-Environment-Preparation)
 
-4. [Contacts](#4.-Contacts)
+4. [Contacts](#4-Contacts)
 
 # 1. Product Overview
 
@@ -27,7 +27,7 @@ This document presents the basic information of the **API - Legacy Integrator (S
 | **Whose impact is**          | Getting out of legacy solutions such as Core and Legacy-project. |
 | **A good solution would be** | Access the legacy database from a separate service.              |
 
-# 2 Endpoint List
+# 2. Endpoint List
 
     URL: http://TODO.solfacil.com.br/
     Available environments: Stg e Prod
@@ -130,7 +130,7 @@ about GitHub Packages.
    |-----------------------|------|
    | legacy_integrator_app | 8000 |
 
-# 4. Contacts
+# 4 Contacts
 > Technical manager:
 1. Dieison Borges - dieison.borges@solfacil.com.br
 
