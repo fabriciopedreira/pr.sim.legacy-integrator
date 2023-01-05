@@ -1,41 +1,32 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
 
-from app.dependencies import access_validation, get_session_db
-from app.domain.common.legacy_model import Emprestimo, Contrato, Financiamento, Bancarizadora, Cliente, \
-    ProdutoFinanceiro
+from app.dependencies import access_validation, get_repository
+from app.domain.legacy_query.repository import Repository
 from app.domain.legacy_query.schemas import FormalizedFinancingResponse
+from app.domain.legacy_query.service import Service
 from app.internal.utils import latency
 
-router = APIRouter(dependencies=[Depends(access_validation)])
+router = APIRouter(prefix="/legacy", dependencies=[Depends(access_validation)])
 
 
-@router.get("/financing/{product_slug}", summary="Consult data on formalized financing.", response_model=FormalizedFinancingResponse, status_code=200)
+@router.get(
+    path="/financing-formalized/formalizations/{session_data}/{product_slug}",
+    summary="Find formalizations by session_data and financial_product_slug.",
+    response_model=list[FormalizedFinancingResponse],
+    status_code=200,
+)
 @latency
-async def read_patner_by_document(product_slug: str, session_db: Session = Depends(get_session_db)):
-    """Get patner by document
+async def find_formalizations_by_session_data_and_product_slug(
+    session_data: str, product_slug: str, repository: Repository = Depends(get_repository(repo_type=Repository))
+):
+    """Find formalizations by session_data and financial_product_slug
+    * **param**: session_data: Data from session
     * **param**: product_slug: Slug from financing-product
-    * **param**: session_db: Session of sql database
+    * **param**: repository: Repository to make query on database
 
     **return**: BaseModel
     """
 
-    fields = ('numero_ccb', 'nome', 'cpf', 'nome_completo', 'slug')
-
-    session_db.query(
-        Financiamento, *fields
-    ).join(
-        Contrato
-    ).join(
-        Emprestimo
-    ).join(
-        Bancarizadora
-    ).join(
-        Cliente
-    ).join(
-        ProdutoFinanceiro
-    ).filter(
-        ProdutoFinanceiro.slug == product_slug
-    ).all()
-
-    return FormalizedFinancingResponse()
+    return await Service(repository=repository).formalizations_by_session_data_and_product_slug(
+        session_data, product_slug
+    )

@@ -10,7 +10,7 @@ from app.internal.config import (
     set_up_logger,
     set_up_sentry_sdk,
 )
-from app.routers import healthcheck, welcome, legacy_query
+from app.routers import healthcheck, legacy_query, welcome
 
 __version__ = PROJECT_VERSION_API
 
@@ -38,7 +38,7 @@ def create_app() -> FastAPI:
         contact=PROJECT_CONTACT_API,
     )
     app.include_router(router=welcome)
-    app.include_router(legacy_query.router, tags=["Legacy"])
-    app.include_router(healthcheck.router, tags=["Health"])
+    app.include_router(router=legacy_query.router, tags=["Legacy"])
+    app.include_router(router=healthcheck.router, tags=["Health"])
 
     return app

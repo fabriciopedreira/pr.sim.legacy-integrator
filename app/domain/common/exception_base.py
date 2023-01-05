@@ -70,3 +70,9 @@ class AnauthorizedException(APIException):
             detail += f" - Kid=[{kid}]"
 
         super().__init__(status.HTTP_401_UNAUTHORIZED, detail, stacktrace, severity=30)
+
+
+class ValidationException(APIException):
+    def __init__(self, stacktrace: list):
+        detail = "Validation error - some value of the response model is not a valid type"
+        super().__init__(status.HTTP_500_INTERNAL_SERVER_ERROR, detail, stacktrace)

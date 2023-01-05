@@ -4,10 +4,9 @@ from loguru import logger
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.schema import CreateSchema
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
-from app.internal.config import DATABASE_SCHEMA, DATABASE_URL, TESTING
+from app.internal.config import DATABASE_URL, TESTING
 from app.internal.config.settings import MODE, PROJECT_NAME_API
 
 if TESTING:
