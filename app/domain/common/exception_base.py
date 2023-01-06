@@ -76,3 +76,9 @@ class ValidationException(APIException):
     def __init__(self, stacktrace: list):
         detail = "Validation error - some value of the response model is not a valid type"
         super().__init__(status.HTTP_500_INTERNAL_SERVER_ERROR, detail, stacktrace)
+
+
+class NotFoundException(APIException):
+    def __init__(self, model: str = "Values"):
+        detail = f"{model} not found"
+        super().__init__(status.HTTP_404_NOT_FOUND, detail, severity=20)

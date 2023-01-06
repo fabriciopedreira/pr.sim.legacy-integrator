@@ -3,7 +3,7 @@ from typing import Any, Type
 
 from pydantic import BaseModel
 
-from app.domain.legacy_query.exceptions import NotFoundException
+from app.domain.common.exception_base import NotFoundException
 
 
 @dataclass
