@@ -2,22 +2,22 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from app.domain.common.service_base import ServiceBase, try_query_except
-from app.domain.legacy_query.repository import Repository
+from app.domain.legacy_query.repository.formalized import FormalizedRepository
 from app.domain.legacy_query.schemas import FormalizedResponse
 
 
 @dataclass
-class Service(ServiceBase):
-    repository: Repository
+class FormalizedService(ServiceBase):
+    repository: FormalizedRepository
 
     @try_query_except
-    async def formalizations_by_session_data_and_product_slug(
-        self, session_data: str, product_slug: str
+    async def formalizations_by_cessao_date_and_product_slug(
+        self, cessao_date: str, product_slug: str
     ) -> list[FormalizedResponse]:
-        session_data_object = datetime.strptime(session_data, "%Y-%m-%d").date()
+        cessao_date_object = datetime.strptime(cessao_date, "%Y-%m-%d").date()
 
-        result = await self.repository.find_formalizations_by_session_data_and_product_slug(
-            session_data_object, product_slug
+        result = await self.repository.find_formalizations_by_cessao_date_and_product_slug(
+            cessao_date_object, product_slug
         )
         formalizations = list(
             map(

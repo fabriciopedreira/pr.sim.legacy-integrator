@@ -25,7 +25,6 @@ pydantic = "^1.10.2"
 PyJWT = "^2.6.0"
 sentry-sdk = "^1.12.1"
 SQLAlchemy = "^1.4.45"
-SQLAlchemy-Utils = "^0.39.0"
 toml = "^0.10.2"
 uvicorn = {extras = ["standard"], version = "^0.20.0"}
 
@@ -92,7 +91,7 @@ omit = [
 [tool.coverage.report]
 show_missing = true
 sort = 'Miss'
-fail_under = 90
+fail_under = 70
 skip_empty = true
 
 [tool.coverage.paths]

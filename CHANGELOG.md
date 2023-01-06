@@ -13,10 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 ### Removed
 
-## [0.0.1] - 2022-12-01
+## [0.1.0] - 2023-01-06
 
 ### Added
 
 - Initial release
-- This CHANGELOG file to hopefully serve as an evolving example of a
-  standardized open source project CHANGELOG.
+- Endpoint: financing-formalized/formalizations/{cessao_date}/{product_slug}, to find formalizations by cessao date and financial_product_slug.

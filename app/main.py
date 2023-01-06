@@ -9,11 +9,9 @@ application = create_app()
 
 @application.on_event("startup")
 async def startup_event():
-    """On startup"""
     logger.info(f"[+] {LOG_DATA}")
 
 
 @application.on_event("shutdown")
 def shutdown_event():
-    """On shutdown"""
     logger.info("[*] Application shutdown")

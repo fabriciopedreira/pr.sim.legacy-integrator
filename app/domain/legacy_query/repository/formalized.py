@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import date, datetime, time
 from typing import Any, List
 
 from sqlalchemy import case
@@ -19,9 +19,9 @@ from app.domain.common.legacy_model import (
 from app.domain.common.repository_base import RepositoryBase
 
 
-class Repository(RepositoryBase):
-    async def find_formalizations_by_session_data_and_product_slug(
-        self, session_data, product_slug
+class FormalizedRepository(RepositoryBase):
+    async def find_formalizations_by_cessao_date_and_product_slug(
+        self, cessao_date_object: date, product_slug: str
     ) -> List[tuple[Any]]:
         return (
             self.session_db.query(
@@ -57,8 +57,8 @@ class Repository(RepositoryBase):
             .join(CessaoFormalizacao, CessaoFormalizacao.formalizacao_id == Formalizacao.id)
             .join(Cessao, Cessao.id == CessaoFormalizacao.cessao_id)
             .filter(
-                Cessao.created_at >= datetime.combine(session_data, time.min),
-                Cessao.created_at <= datetime.combine(session_data, time.max),
+                Cessao.created_at >= datetime.combine(cessao_date_object, time.min),
+                Cessao.created_at <= datetime.combine(cessao_date_object, time.max),
                 ProdutoFinanceiro.slug == product_slug,
             )
             .all()

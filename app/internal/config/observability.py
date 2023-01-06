@@ -32,10 +32,6 @@ def set_up_sentry_sdk() -> None:
 
 
 def set_up_ddtrace() -> None:
-    """Add datadog integration
-
-    :return: None
-    """
     patch(fastapi=True)
 
     # Override service name

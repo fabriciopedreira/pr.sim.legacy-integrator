@@ -75,7 +75,3 @@ KEYCLOAK_REALM = config("KEYCLOAK_REALM", cast=str, default="dev")
 # Authentication
 AUTH_CACHE_EXPIRATION = config("AUTH_CACHE_EXPIRATION", cast=int, default=2700)  # 45 minutes - 2700 seconds
 AUTH_CACHE_MAXSIZE = config("AUTH_CACHE_MAXSIZE", cast=int, default=1024)  # items in cache
-
-# Launch Darkly
-LAUNCH_DARKLY_SECRET_KEY = config("LAUNCH_DARKLY_SECRET_KEY", cast=str, default="")
-LAUNCH_DARKLY_EXAMPLE_FLAG = config("LAUNCH_DARKLY_EXAMPLE_FLAG", cast=str, default="solfacil-flag")

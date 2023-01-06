@@ -13,12 +13,6 @@ router = APIRouter()
 
 @router.get("/healthcheck", summary="API is active?")
 async def live(session_db: Session = Depends(get_session_db)) -> dict:
-    """Check if API is Alive
-
-    * **param**: session_db: Session from database.
-
-    **return**: dict.
-    """
     try:
         session_db.execute("SELECT 1")
     except OperationalError as err:

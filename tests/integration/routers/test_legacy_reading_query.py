@@ -12,16 +12,11 @@ def client(drop_db):
 
 @pytest.fixture
 def token():
-    return "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
-
-
-@pytest.fixture
-def payload():
-    return {"name": "Pythom Microservice Template", "document": "674.194.620-97", "active": True}
+    return "dddeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
 
 
 def test_welcome_router(client):
-    expected_response = "Welcome to the Python Template API"
+    expected_response = "For more information, read the documentation in /docs or /redoc"
     response = client.get("/")
 
     assert response.status_code == 200
@@ -36,7 +31,7 @@ def test_healthcheck_router(client):
     assert response.json() == expected_response
 
 
-def test_unauthorized_router_403(client, payload):
-    response = client.post("/patner/", json=payload)
+def test_unauthorized_router_403(client):
+    response = client.get("/legacy/financing-formalized/formalizations/2023-01-06/fidc_v")
 
     assert response.status_code == 403

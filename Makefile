@@ -7,14 +7,6 @@ install:
 update:
 	@poetry update
 
-# Tests Commands
-test: install
-	@poetry ./app/
-	@pytest -vv -rxs --capture=tee-sys
-
-coverage:
-	@pytest -xs --cov app --cov-report xml --cov-report term-missing --cov-config .coveragerc
-
 # Clean .pyc
 clean:
 	@echo "Cleaning cache..."
@@ -58,11 +50,9 @@ checker:
 	@echo "Finished bandit execution."
 	@echo ""
 
-
 # Run app local
 run:
 	@poetry run uvicorn app.main:application --port 8000 --workers 3 --reload
-
 
 # Dev tools
 localdb:
@@ -73,3 +63,10 @@ docker-build:
 
 docker-run:
 	@docker run -it application -p 8000:8000
+
+# Tests Commands
+test:
+	@poetry run pytest --cov
+
+test-report:
+	@poetry run pytest --cov-report html --cov
