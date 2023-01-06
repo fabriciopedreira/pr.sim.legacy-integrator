@@ -81,4 +81,4 @@ class ValidationException(APIException):
 class NotFoundException(APIException):
     def __init__(self, model: str = "Values"):
         detail = f"{model} not found"
-        super().__init__(status.HTTP_404_NOT_FOUND, detail, severity=20)
+        super().__init__(status.HTTP_204_NO_CONTENT, detail, severity=20)

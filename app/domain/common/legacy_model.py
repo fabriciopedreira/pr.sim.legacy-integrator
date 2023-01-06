@@ -23,21 +23,28 @@ class ProdutoFinanceiro(EntityModelBase):
 class Cliente(EntityModelBase):
     __tablename__ = "cliente"
 
-    cpf = Column(String(32), index=True, nullable=True)
-    nome_completo = Column(String(128), index=True, nullable=True)
+    cpf = Column(String(32))
+    nome_completo = Column(String(128))
+
+
+class Empresa(EntityModelBase):
+    __tablename__ = "empresa"
+
+    cnpj = Column(String(32))
+    nome_fantasia = Column(String(128))
 
 
 class TipoDeFinanciamento(EntityModelBase):
     __tablename__ = "tipo_de_financiamento"
 
-    nome = Column(String(32), unique=True, nullable=True)
-    tipo = Column(String(8), unique=True, nullable=True)
+    nome = Column(String(32))
+    tipo = Column(String(8))
 
 
 class Bancarizadora(EntityModelBase):
     __tablename__ = "bancarizadora"
 
-    nome = Column(String(255), unique=True, nullable=True)
+    nome = Column(String(255))
 
 
 class Contrato(EntityModelBase):
@@ -50,7 +57,7 @@ class Contrato(EntityModelBase):
 class Emprestimo(EntityModelBase):
     __tablename__ = "emprestimo"
 
-    numero_ccb = Column(String(32), nullable=True)
+    numero_ccb = Column(String(32))
     cliente_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cliente.id"))
     avalista_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cliente.id"))
 
@@ -59,7 +66,7 @@ class Financiamento(EntityModelBase):
     __tablename__ = "financiamento"
 
     cliente_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cliente.id"))
-    avalista_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cliente.id"))
+    empresa_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.empresa.id"))
     contrato_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.contrato.id"))
     emprestimo_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.emprestimo.id"))
     bancarizadora_id = Column(BigInteger, ForeignKey(f"{DATABASE_SCHEMA}.bancarizadora.id"))

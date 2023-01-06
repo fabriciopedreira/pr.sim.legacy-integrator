@@ -49,7 +49,7 @@ checker:
 	@echo ""
 
 	@echo "Start mypy execution:"
-	@poetry run mypy --ignore-missing-imports ./app/
+	@poetry run mypy ./app/
 	@echo "Finished pylint execution."
 	@echo ""
 

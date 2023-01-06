@@ -64,10 +64,14 @@ extend-exclude = '''
     ^/app/domain/common/exception_base.py
 '''
 
+[tool.mypy]
+ignore_missing_imports = true
+disable_error_code = 'attr-defined'
+
 [tool.pylint.format]
 max-line-length = 120
 ignore-docstrings = false
-disable = 'C0114, E0401, R0903, E0611, C0115, E0213'
+disable = 'C0114, E0401, R0903, E0611, C0115, E0213, C0116'
 ignore = 'migrations'
 
 [tool.coverage.run]

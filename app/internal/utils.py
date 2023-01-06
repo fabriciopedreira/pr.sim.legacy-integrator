@@ -1,8 +1,8 @@
 import sys
 import time
-import typing as t
 from datetime import datetime, timedelta
 from functools import wraps
+from typing import Callable
 
 from async_lru import alru_cache
 from loguru import logger
@@ -16,7 +16,7 @@ def exc_info():
     return type_, value
 
 
-def latency(func: t.Callable):
+def latency(func: Callable):
     """Decorator to calculate endpoint latency. Print latency and response logs.
     :param: func: A callaable function
 

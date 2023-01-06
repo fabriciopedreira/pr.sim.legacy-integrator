@@ -1,14 +1,11 @@
 from pydantic import BaseModel
 
 
-class FormalizedFinancingResponse(BaseModel):
+class FormalizedResponse(BaseModel):
     ccb_number: int | str
-    client_cpf: str
+    banking_name: str
+    client_document: str
     client_name: str
     person_type: str
+    slug: str
     contract_date: str
-
-
-class SessionDataFinancialProductSlug(BaseModel):
-    session_data: str
-    product_slug: str
