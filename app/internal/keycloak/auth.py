@@ -8,7 +8,7 @@ from httpx import ConnectTimeout, HTTPError, HTTPStatusError
 from jwt import DecodeError
 from loguru import logger
 
-from app.domain.common.exception_base import AnauthorizedException, AuthtenticationException
+from app.domain.common.exception_base import AuthenticationException, UnauthorizedException
 from app.internal.config import BASIC_HEADERS, KEYCLOAK_BASE_URL, KEYCLOAK_REALM
 from app.internal.config.settings import AUTH_CACHE_EXPIRATION, AUTH_CACHE_MAXSIZE
 from app.internal.utils import cache, exc_info
@@ -44,7 +44,7 @@ class Auth:
             token_header = jwt.get_unverified_header(token)
             return token_header.get("kid")
         except DecodeError as exc:
-            raise AnauthorizedException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
+            raise UnauthorizedException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
 
     @cache(seconds=AUTH_CACHE_EXPIRATION, maxsize=AUTH_CACHE_MAXSIZE)
     async def __get_certs(self) -> Optional[Any]:
@@ -69,7 +69,7 @@ class Auth:
 
             return response.json()
         except (HTTPStatusError, ConnectTimeout, HTTPError) as exc:
-            raise AuthtenticationException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
+            raise AuthenticationException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
 
     def __hash__(self):
         return hash((type(self),) + tuple(self.__dict__.values()))

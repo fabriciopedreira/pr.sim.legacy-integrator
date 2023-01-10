@@ -40,15 +40,15 @@ class SQLAlchemyException(APIException):
         super().__init__(status.HTTP_500_INTERNAL_SERVER_ERROR, detail, stacktrace, severity=50)
 
 
-class AuthtenticationException(APIException):
+class AuthenticationException(APIException):
     def __init__(self, stacktrace: list):
-        detail = "Authtentication - error detected in the authtentication process"
+        detail = "Authentication - error detected in the Authentication process"
         super().__init__(status.HTTP_403_FORBIDDEN, detail, stacktrace, severity=50)
 
 
-class AnauthorizedException(APIException):
+class UnauthorizedException(APIException):
     def __init__(self, stacktrace: list, kid: Optional[Any] = ""):
-        detail = "Anauthorized - Invalid or expired token"
+        detail = "Unauthorized - Invalid or expired token"
 
         if kid:
             detail += f" - Kid=[{kid}]"

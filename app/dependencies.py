@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from starlette.requests import Request
 
 from app.database import SessionLocal
-from app.domain.common.exception_base import AnauthorizedException
+from app.domain.common.exception_base import UnauthorizedException
 from app.domain.common.repository_base import RepositoryBase
 from app.internal.keycloak.auth import Auth
 from app.internal.utils import latency
@@ -32,4 +32,4 @@ async def access_validation(
     _request: Request, authorization: HTTPAuthorizationCredentials = Depends(HTTPBearer())
 ) -> None:
     if not await Auth().token_validation(token=authorization.credentials):
-        raise AnauthorizedException(stacktrace=["access_validation"], kid=Auth.get_kid(authorization.credentials))
+        raise UnauthorizedException(stacktrace=["access_validation"], kid=Auth.get_kid(authorization.credentials))
