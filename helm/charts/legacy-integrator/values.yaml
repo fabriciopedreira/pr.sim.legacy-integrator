@@ -20,7 +20,7 @@ app:
     periodSeconds: 5 # Do a HealthCheck every 5 seconds
 
   image:
-    repository: 882900074471.dkr.ecr.us-east-1.amazonaws.com/legacy-integrator
+    repository: 882900074471.dkr.ecr.us-east-1.amazonaws.com/legacy_query-integrator
     tag: latest  
     pullPolicy: Always
 
@@ -34,7 +34,7 @@ app:
 
   ingress:
     enabled: true # If True - Application will be accessed externally via external DNS on Cloudflare.
-    host: legacy-integrator.solfacil.com.br # CNAME created in cloudflare for the application
+    host: legacy_query-integrator.solfacil.com.br # CNAME created in cloudflare for the application
 
   service: 
     port: 80 # servicePort

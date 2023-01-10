@@ -20,7 +20,7 @@ app:
     periodSeconds: 5 # Faz a checagem a cada 5s
 
   image:
-    repository: 882900074471.dkr.ecr.us-east-1.amazonaws.com/legacy-integrator
+    repository: 882900074471.dkr.ecr.us-east-1.amazonaws.com/legacy_query-integrator
     tag: latest
     pullPolicy: Always
 
@@ -34,7 +34,7 @@ app:
 
   ingress:
     enabled: true
-    host: stg-legacy-integrator.solfacil.com.br
+    host: stg-legacy_query-integrator.solfacil.com.br
 
   service: 
     port: 80
