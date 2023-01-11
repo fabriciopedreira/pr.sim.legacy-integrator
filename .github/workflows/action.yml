@@ -11,6 +11,7 @@ on:
         options: 
         - stg
         - prod
+        - hml
 jobs:  
   stg:
     uses: solfacil/github-actions-workflows/.github/workflows/DockerBuildAndPush.yml@main
