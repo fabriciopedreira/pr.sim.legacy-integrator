@@ -26,9 +26,7 @@ RUN pip3 install poetry && \
 # run this command to install all dependencies
 RUN poetry lock --no-update && \
     poetry install --only main && \
-    poetry add isort && \
-    poetry add sqlalchemy-utils && \
-    poetry add alembic
+    poetry add isort
    
 EXPOSE 8000
 # where your code lives
