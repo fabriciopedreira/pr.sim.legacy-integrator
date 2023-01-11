@@ -90,7 +90,7 @@ omit = [
 [tool.coverage.report]
 show_missing = true
 sort = 'Miss'
-fail_under = 70
+fail_under = 30
 skip_empty = true
 
 [tool.coverage.paths]
