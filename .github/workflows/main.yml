@@ -1,0 +1,28 @@
+name: Build Python App
+on: 
+  workflow_dispatch:
+    inputs:
+      app_name:
+        type: string
+        default: 'legacy-integrator'        
+      env:
+        type: choice
+        description: Environment name?
+        options: 
+        - stg
+        - prod
+jobs:  
+  stg:
+    uses: solfacil/github-actions-workflows/.github/workflows/DockerBuildAndPush.yml@main
+    if: ${{ github.event.inputs.env == 'stg' }} 
+    with:
+      env: ${{ github.event.inputs.env }}
+      app_name: ${{ github.event.inputs.app_name }}
+    secrets: inherit
+  prod:
+    uses: solfacil/github-actions-workflows/.github/workflows/DockerBuildAndPush.yml@main
+    if: ${{ github.event.inputs.env == 'prod' }} 
+    with:
+      env: ${{ github.event.inputs.env }}
+      app_name: ${{ github.event.inputs.app_name }}
+    secrets: inherit
