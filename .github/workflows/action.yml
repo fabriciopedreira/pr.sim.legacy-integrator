@@ -1,4 +1,4 @@
-name: Build ArgoCD application
+name: Build Python App
 on: 
   workflow_dispatch:
     inputs:
@@ -11,7 +11,6 @@ on:
         options: 
         - stg
         - prod
-        - hml
 jobs:  
   stg:
     uses: solfacil/github-actions-workflows/.github/workflows/DockerBuildAndPush.yml@main
