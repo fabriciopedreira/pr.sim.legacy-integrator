@@ -1,21 +1,17 @@
-name: Build Python App
-on:
-  push:
-    branches:
-      - feature/devops3
-#on: 
-#  workflow_dispatch:
-#    inputs:
-#      app_name:
-#        type: string
-#        default: 'legacy-integrator'        
-#      env:
-#        type: choice
-#        description: Environment name?
-#        options: 
-#        - stg
-#        - prod
-#        - hml
+name: Build ArgoCD application
+on: 
+  workflow_dispatch:
+    inputs:
+      app_name:
+        type: string
+        default: 'legacy-integrator'        
+      env:
+        type: choice
+        description: Environment name?
+        options: 
+        - stg
+        - prod
+        - hml
 jobs:  
   stg:
     uses: solfacil/github-actions-workflows/.github/workflows/DockerBuildAndPush.yml@main
