@@ -70,3 +70,8 @@ test:
 
 test-report:
 	@poetry run pytest --cov-report html --cov
+
+
+# Migrations
+migrations:
+	@poetry run alembic upgrade heads

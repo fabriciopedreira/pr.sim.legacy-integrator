@@ -22,7 +22,7 @@ class Auth:
         self.oidc_uri = f"{KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect"
 
     async def token_validation(self, token: str) -> bool:
-        """Validate token for autentication
+        """Validate token for authentication
         :param: token: Str token
 
         :return: bool: True for valid token

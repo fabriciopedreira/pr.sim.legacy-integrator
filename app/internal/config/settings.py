@@ -10,7 +10,7 @@ config = Config(f"{str(BASE_PATH)}/.env")
 with open(f"{BASE_PATH}/pyproject.toml", "rb") as reader:
     pyproject = tomli.load(reader)
     poetry = pyproject["tool"]["poetry"]
-    inforamation = pyproject["inforamation"]
+    information = pyproject["information"]
 
 # API
 PROJECT_DESCRIPTION_API = config("PROJECT_DESCRIPTION_API", cast=str, default=poetry.get("description"))
@@ -20,13 +20,13 @@ PROJECT_CONTACT_API = config(
     "PROJECT_AUTHORS_API",
     cast=dict,
     default={
-        "name": inforamation.get("contact")[0],
-        "email": inforamation.get("contact")[1],
+        "name": information.get("contact")[0],
+        "email": information.get("contact")[1],
     },
 )
 BASIC_HEADERS = {"Content-Type": "application/json"}
 
-# PostgreSQL Database
+# Postgres Database
 DATABASE_PORT = config("DATABASE_PORT", cast=int, default=5432)
 DATABASE_HOST = config("DATABASE_HOST", cast=str, default="localhost")
 DATABASE_NAME = config("DATABASE_NAME", cast=str, default="solfacil_local_dev")
@@ -40,7 +40,7 @@ TESTING_TEMPORAL_DATABASE = "postgres"
 if TESTING:
     DATABASE_NAME += "_test"
 
-# PostgreSQL Database Url
+# Postgres Database Url
 DATABASE_URL = config(
     "DATABASE_URL",
     cast=str,
