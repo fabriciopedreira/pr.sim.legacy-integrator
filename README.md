@@ -7,7 +7,7 @@ This document presents the basic information of the **API - Legacy Integrator (S
 
 | Date       | Version | Description          | Author                    |
 |------------|---------|----------------------|---------------------------|
-| 04/03/2023 | 0.1.0   | Project creation     | **Frank Ricardo Ramirez** |
+| 04/01/2023 | 0.1.0   | Project creation     | **Frank Ricardo Ramirez** |
 
 # Summary
 
