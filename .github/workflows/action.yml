@@ -4,7 +4,13 @@ on:
     inputs:
       app_name:
         type: string
-        default: 'legacy-integrator'        
+        default: 'legacy-integrator'
+      domain_name:
+        type: string
+        default: 'pricing'
+      subdomain_name:
+        type: string
+        default: 'simulation'
       env:
         type: choice
         description: Environment name?
