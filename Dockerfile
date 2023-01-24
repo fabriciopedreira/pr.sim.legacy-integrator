@@ -18,7 +18,7 @@ RUN apt-get update -y &&  \
     rm -rf /var/lib/apt/lists/* && \
     mkdir $SERVICE_HOME
 
-ARG TEST=git
+ARG TEST=git22
 
 # copy whole project to your docker home directory.
 COPY . ./
