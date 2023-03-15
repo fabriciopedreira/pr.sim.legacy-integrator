@@ -5,7 +5,7 @@ from pydantic import UUID4, BaseModel, Field
 
 
 class FinancingRequest(BaseModel):
-    simulation_id: UUID4
+    project_id: UUID4
     partner_id: int
     user_id: int
     person_type: str
@@ -28,7 +28,7 @@ class FinancingRequest(BaseModel):
     class Config:
         schema_extra = {
             "example": {
-                "simulation_id": uuid.uuid4(),
+                "project_id": uuid.uuid4(),
                 "partner_id": 1,
                 "user_id": 1,
                 "person_type": "PF",

@@ -40,7 +40,7 @@ class FinancingService(ServiceBase):
             parceiro_id=data_request.partner_id,
             user_id=data_request.user_id,
             cotacao=Cotacao(
-                external_simulation_id=data_request.simulation_id,
+                external_simulation_id=data_request.project_id,
                 valor_do_projeto=data_request.financing_value,
                 entrada=data_request.down_payment,
                 carencia=data_request.grace_period,
