@@ -5,6 +5,7 @@ from app.dependencies import get_repository
 from app.domain.financing.repository import FinancingRepository
 from app.domain.financing.schemas import FinancingRequest, FinancingResponse
 from app.domain.financing.service import FinancingService
+from app.internal.utils import latency
 
 financing_router = APIRouter()
 
@@ -15,6 +16,7 @@ financing_router = APIRouter()
     response_model=FinancingResponse,
     status_code=status.HTTP_201_CREATED,
 )
+@latency
 async def create_financing(
     data_request: FinancingRequest,
     repository: FinancingRepository = Depends(get_repository(repo_type=FinancingRepository)),
