@@ -1,4 +1,5 @@
-from sqlalchemy import BigInteger, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import BigInteger, Boolean, Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.database import Base
@@ -11,7 +12,7 @@ class EntityModelBase(Base):
 
     id = Column(BigInteger, primary_key=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
 
 
 class ProdutoFinanceiro(EntityModelBase):
@@ -25,6 +26,8 @@ class Cliente(EntityModelBase):
 
     cpf = Column(String(32))
     nome_completo = Column(String(128))
+
+    financiamento = relationship("Financiamento", back_populates="cliente")
 
 
 class Empresa(EntityModelBase):
@@ -65,12 +68,25 @@ class Emprestimo(EntityModelBase):
 class Financiamento(EntityModelBase):
     __tablename__ = "financiamento"
 
+    etapa = Column(String(64))
+    status = Column(String(16))
+    deletado = Column(Boolean, default=False)
+    inativo = Column(Boolean, default=False)
+
     cliente_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cliente.id"))
     empresa_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.empresa.id"))
     contrato_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.contrato.id"))
     emprestimo_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.emprestimo.id"))
     bancarizadora_id = Column(BigInteger, ForeignKey(f"{DATABASE_SCHEMA}.bancarizadora.id"))
     tipo_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.tipo_de_financiamento.id"))
+    cotacao_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cotacao.id"))
+    parceiro_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.parceiro.id"))
+    user_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.users.id"))
+
+    cliente = relationship("Cliente", back_populates="financiamento")
+    cotacao = relationship("Cotacao", back_populates="financiamento")
+    parceiro = relationship("Parceiro", back_populates="financiamento")
+    users = relationship("Users", back_populates="financiamento")
 
 
 class Formalizacao(EntityModelBase):
@@ -90,3 +106,90 @@ class CessaoFormalizacao(EntityModelBase):
 
     cessao_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cessao.id"))
     formalizacao_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.formalizacao.id"))
+
+
+class Parcela(EntityModelBase):
+    __tablename__ = "parcela"
+
+    numero_de_parcelas = Column(Integer, nullable=True)
+    iof = Column(Float, nullable=True)
+    cet = Column(String(16), nullable=True)
+    valor_da_parcela = Column(Float, nullable=True)
+    taxa_de_juros = Column(Float, nullable=True)
+    taxa_de_cadastro = Column(Float, nullable=True)
+    valor_da_comissao = Column(Float, nullable=True)
+    aliquota_iof = Column(Float, nullable=True)
+
+    cotacao_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cotacao.id"), nullable=True)
+
+    cotacao = relationship("Cotacao", back_populates="parcelas")
+
+
+class Cotacao(EntityModelBase):
+    __tablename__ = "cotacao"
+
+    valor_do_projeto = Column(Float)
+    nome_do_projeto = Column(String(128))
+    entrada = Column(Float)
+    carencia = Column(Integer)
+    numero_de_parcelas = Column(Integer)
+    geracao_mensal = Column(Integer)
+    cet = Column(String(16))
+    envia_carencia = Column(Boolean, default=False)
+    valor_original_financiado = Column(Float)
+    potencia_do_sistema = Column(Float)
+    ipca = Column(String(255))
+    ipca_vigente = Column(String(255))
+    calculadora_selecionada_id = Column(String(255))
+    external_simulation_id = Column(String(255))
+
+    fornecedor_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.fornecedor.id"), nullable=True)
+    calculadora_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.calculadora.id"), nullable=True)
+    cidade_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cidade.id"), nullable=True)
+
+    financiamento = relationship("Financiamento", back_populates="cotacao")
+    fornecedor = relationship("Fornecedor", back_populates="cotacao")
+    calculadora = relationship("Calculadora", back_populates="cotacao")
+    cidade = relationship("Cidade", back_populates="cotacao")
+
+    parcelas = relationship(
+        "Parcela",
+        back_populates="cotacao",
+        primaryjoin="Parcela.cotacao_id==Cotacao.id",
+        lazy=True,
+        order_by="Parcela.numero_de_parcelas",
+    )
+
+
+class Parceiro(EntityModelBase):
+    __tablename__ = "parceiro"
+
+    financiamento = relationship("Financiamento", back_populates="parceiro")
+
+
+class Users(EntityModelBase):
+    __tablename__ = "users"
+
+    fornecedor_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.fornecedor.id"))
+
+    financiamento = relationship("Financiamento", back_populates="users")
+    fornecedor = relationship("Fornecedor", back_populates="users")
+
+
+class Fornecedor(EntityModelBase):
+    __tablename__ = "fornecedor"
+
+    users = relationship("Users", back_populates="fornecedor")
+    cotacao = relationship("Cotacao", back_populates="fornecedor")
+
+
+class Calculadora(EntityModelBase):
+    __tablename__ = "calculadora"
+
+    cotacao = relationship("Cotacao", back_populates="calculadora")
+
+
+class Cidade(EntityModelBase):
+    __tablename__ = "cidade"
+
+    cotacao = relationship("Cotacao", back_populates="cidade")

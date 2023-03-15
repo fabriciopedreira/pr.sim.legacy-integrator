@@ -36,7 +36,7 @@ class APIException(HTTPException):
 
 class SQLAlchemyException(APIException):
     def __init__(self, stacktrace: list):
-        detail = "SQLAlchemy - error detected in the ORM or database"
+        detail = "SQLAlchemy - error detected in the ORM or database offline"
         super().__init__(status.HTTP_500_INTERNAL_SERVER_ERROR, detail, stacktrace, severity=50)
 
 
@@ -66,3 +66,9 @@ class NotFoundException(APIException):
     def __init__(self, model: str = "Values"):
         detail = f"{model} not found"
         super().__init__(status.HTTP_204_NO_CONTENT, detail, severity=20)
+
+
+class InsertDBException(APIException):
+    def __init__(self, stacktrace: list, message):
+        detail = f"Insert or update database error {message}"
+        super().__init__(status.HTTP_400_BAD_REQUEST, detail, stacktrace)

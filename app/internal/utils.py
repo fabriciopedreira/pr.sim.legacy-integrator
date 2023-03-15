@@ -65,3 +65,14 @@ def cache(seconds: int, maxsize: int = 128):
         return wrapped_func
 
     return wrapper_cache
+
+
+def parser_person_type(person_type: str) -> int | None:
+    return {"PF": 1, "PJ": 2, "PR": 3}.get(person_type.upper(), None)
+
+
+def parse_ipca(cet, ipca):
+    if cet.upper() == "PRE_FIXADO":
+        return
+    if cet.upper() == "POS_FIXADO":
+        return ipca

@@ -26,6 +26,9 @@ __all__ = [
     "set_up_logger",
     "Logger",
     "PROJECT_NAME_API",
+    "DEFAULT_CALCULATOR",
+    "DEFAULT_CITY",
+    "DEFAULT_PROVIDER",
 ]
 
 from app.internal.config.logger import Logger, set_up_logger
@@ -39,6 +42,9 @@ from app.internal.config.settings import (
     DATABASE_SCHEMA,
     DATABASE_URL,
     DATABASE_USER,
+    DEFAULT_CALCULATOR,
+    DEFAULT_CITY,
+    DEFAULT_PROVIDER,
     GUNICORN_BIND,
     GUNICORN_GRACEFUL_TIMEOUT,
     GUNICORN_KEEPALIVE,
