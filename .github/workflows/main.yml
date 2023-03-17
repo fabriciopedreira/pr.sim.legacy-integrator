@@ -15,13 +15,13 @@ on:
         type: choice
         description: Environment name?
         options:
-        - hml
+        - hmla
         - stg
         - prod
 jobs:
-  hml:
+  hmla:
     uses: solfacil/github-actions-workflows/.github/workflows/DockerBuildAndPush.yml@main
-    if: ${{ github.event.inputs.env == 'hml' }}
+    if: ${{ github.event.inputs.env == 'hmla' }}
     with:
       env: ${{ github.event.inputs.env }}
       app_name: ${{ github.event.inputs.app_name }}
