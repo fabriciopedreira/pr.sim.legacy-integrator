@@ -43,7 +43,7 @@ class FinancingService(ServiceBase):
                 external_simulation_id=data_request.project_id,
                 valor_do_projeto=data_request.financing_value,
                 entrada=data_request.down_payment,
-                carencia=data_request.grace_period,
+                carencia=data_request.grace_period - 1,
                 nome_do_projeto=data_request.project_name,
                 cet=data_request.cet,
                 ipca=parse_ipca(data_request.cet, data_request.ipca),

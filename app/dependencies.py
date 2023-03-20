@@ -8,6 +8,7 @@ from starlette.requests import Request
 from app.database import SessionLocal
 from app.domain.common.exception_base import UnauthorizedException
 from app.domain.common.repository_base import RepositoryBase
+from app.internal.config.settings import BEARER_TOKEN
 from app.internal.keycloak.auth import Auth
 from app.internal.utils import latency
 
@@ -33,3 +34,11 @@ async def access_validation(
 ) -> None:
     if not await Auth().token_validation(token=authorization.credentials):
         raise UnauthorizedException(stacktrace=["access_validation"], kid=Auth.get_kid(authorization.credentials))
+
+
+@latency
+async def access_validation_fixed_token(
+    _request: Request, authorization: HTTPAuthorizationCredentials = Depends(HTTPBearer())
+) -> None:
+    if not authorization.credentials == BEARER_TOKEN:
+        raise UnauthorizedException(stacktrace=["access_validation"])

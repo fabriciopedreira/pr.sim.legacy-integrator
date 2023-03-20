@@ -1,13 +1,18 @@
 from fastapi import APIRouter, Depends
 from starlette import status
 
-from app.dependencies import get_repository
+from app.dependencies import access_validation, access_validation_fixed_token, get_repository
 from app.domain.financing.repository import FinancingRepository
 from app.domain.financing.schemas import FinancingRequest, FinancingResponse
 from app.domain.financing.service import FinancingService
+from app.internal.config.settings import ACCESS_VALIDATION
 from app.internal.utils import latency
 
-financing_router = APIRouter()
+financing_router = (
+    APIRouter(dependencies=[Depends(access_validation)])
+    if not ACCESS_VALIDATION
+    else APIRouter(dependencies=[Depends(access_validation_fixed_token)])
+)
 
 
 @financing_router.post(

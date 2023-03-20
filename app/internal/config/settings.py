@@ -76,6 +76,10 @@ KEYCLOAK_REALM = config("KEYCLOAK_REALM", cast=str, default="dev")
 AUTH_CACHE_EXPIRATION = config("AUTH_CACHE_EXPIRATION", cast=int, default=2700)  # 45 minutes - 2700 seconds
 AUTH_CACHE_MAXSIZE = config("AUTH_CACHE_MAXSIZE", cast=int, default=1024)  # items in cache
 
+# Authentication with fixed token
+ACCESS_VALIDATION = config("ACCESS_VALIDATION", cast=bool, default=False)
+BEARER_TOKEN = config("BEARER_TOKEN", cast=str, default="")
+
 # Temporal Envs
 # for create new financing
 DEFAULT_CALCULATOR = config("DEFAULT_CALCULATOR", cast=int, default=70)
