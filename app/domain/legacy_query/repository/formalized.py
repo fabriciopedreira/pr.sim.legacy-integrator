@@ -45,6 +45,7 @@ class FormalizedRepository(RepositoryBase):
                 TipoDeFinanciamento.tipo.label("person_type"),
                 ProdutoFinanceiro.slug,
                 Contrato.created_at.label("contract_date"),
+                Contrato.upload_drive_data.label("formalization_at"),
             )
             .join(Contrato, Contrato.id == Financiamento.contrato_id)
             .join(Emprestimo, Emprestimo.id == Financiamento.emprestimo_id)

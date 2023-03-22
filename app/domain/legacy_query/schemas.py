@@ -9,3 +9,4 @@ class FormalizedResponse(BaseModel):
     person_type: str
     slug: str
     contract_date: str
+    formalization_at: str

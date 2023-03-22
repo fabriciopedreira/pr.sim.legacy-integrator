@@ -29,6 +29,7 @@ class FormalizedService(ServiceBase):
                     person_type=v.person_type,
                     slug=str(v.slug),
                     contract_date=str(v.contract_date),
+                    formalization_at=str(v.formalization_at),
                 ),
                 result,
             )

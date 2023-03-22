@@ -55,6 +55,7 @@ class Contrato(EntityModelBase):
 
     produto_financeiro_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.produto_financeiro.id"))
     estimativa_de_emprestimo_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.emprestimo.id"))
+    upload_drive_data = Column(DateTime(timezone=True))
 
 
 class Emprestimo(EntityModelBase):
