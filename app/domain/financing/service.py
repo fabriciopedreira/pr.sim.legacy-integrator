@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from app.domain.common.exception_base import InsertDBException, SQLAlchemyException, ValidationException
-from app.domain.common.legacy_model import Cotacao, Financiamento, Parcela
+from app.domain.common.legacy_model import Cotacao, Financiamento, Parcela, Cliente
 from app.domain.common.service_base import ServiceBase
 from app.domain.financing.repository import FinancingRepository
 from app.internal.config import DEFAULT_CALCULATOR, DEFAULT_CITY, DEFAULT_PROVIDER
@@ -53,6 +53,9 @@ class FinancingService(ServiceBase):
                 cidade_id=DEFAULT_CITY,
                 geracao_mensal=data_request.geracao_mensal,
             ),
+            client=Cliente(
+                cpf=data_request.document,
+            )
         )
         if data_request.is_combo:
             financing.cotacao.fornecedor_id = DEFAULT_PROVIDER
