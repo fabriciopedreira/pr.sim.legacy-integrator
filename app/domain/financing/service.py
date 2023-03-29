@@ -36,7 +36,7 @@ class FinancingService(ServiceBase):
 
         cpf = has_valid_cpf(data_request.document)
 
-        if not cpf == True:
+        if not cpf:
             raise ResponseException(400, "Invalid cpf format!")
 
         cpf_parsed = format_cpf(cpf)
