@@ -39,8 +39,8 @@ class FinancingService(ServiceBase):
         if not cpf:
             raise ResponseException(400, "Invalid cpf format!")
 
-        cpf_parsed = format_cpf(cpf)
-
+        cpf_parsed = format_cpf(data_request.document)
+       
         financing = Financiamento(
             tipo_id=parser_person_type(data_request.person_type),
             etapa="dados_do_cliente",
@@ -61,10 +61,11 @@ class FinancingService(ServiceBase):
                 cidade_id=DEFAULT_CITY,
                 geracao_mensal=data_request.geracao_mensal,
             ),
-            client=Cliente(
+            cliente=Cliente(
                 cpf=cpf_parsed,
             ),
         )
+
         if data_request.is_combo:
             financing.cotacao.fornecedor_id = DEFAULT_PROVIDER
 

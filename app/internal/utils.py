@@ -83,5 +83,5 @@ def has_valid_cpf(cpf: str) -> bool:
     return len(cpf_parsed) == 11 
 
 def format_cpf(cpf) -> str:
-    return "%s.%s.%s-%s" % ( cpf[0:3], cpf[3:6], cpf[6:9], cpf[9:11] )
-
+    cpf_parsed = cpf.replace(".", "").replace("-", "")
+    return f'{cpf_parsed[:3]}.{cpf_parsed[3:6]}.{cpf_parsed[6:9]}-{cpf_parsed[9:]}'
