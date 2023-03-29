@@ -76,3 +76,12 @@ def parse_ipca(cet, ipca):
         return
     if cet.upper() == "POS_FIXADO":
         return ipca
+    
+def has_valid_cpf(cpf: str) -> bool:
+    cpf_parsed = cpf.replace(".", "").replace("-", "")
+
+    return len(cpf_parsed) == 11 
+
+def format_cpf(cpf) -> str:
+    return "%s.%s.%s-%s" % ( cpf[0:3], cpf[3:6], cpf[6:9], cpf[9:11] )
+
