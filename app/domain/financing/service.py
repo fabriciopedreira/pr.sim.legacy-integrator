@@ -4,12 +4,12 @@ from dataclasses import dataclass
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.domain.common.exception_base import InsertDBException, SQLAlchemyException, ValidationException
-from app.domain.common.legacy_model import Cotacao, Financiamento, Parcela
+from app.domain.common.exception_base import InsertDBException, ResponseException, SQLAlchemyException, ValidationException
+from app.domain.common.legacy_model import Cliente, Cotacao, Financiamento, Parcela
 from app.domain.common.service_base import ServiceBase
 from app.domain.financing.repository import FinancingRepository
 from app.internal.config import DEFAULT_CALCULATOR, DEFAULT_CITY, DEFAULT_PROVIDER
-from app.internal.utils import exc_info, parse_ipca, parser_person_type
+from app.internal.utils import exc_info, parse_ipca, parser_person_type, has_valid_cpf, format_cpf
 
 
 @dataclass
@@ -33,6 +33,14 @@ class FinancingService(ServiceBase):
         return financing
 
     async def financing_data(self, data_request):
+
+        cpf = has_valid_cpf(data_request.document)
+
+        if not cpf:
+            raise ResponseException(400, "Invalid cpf format!")
+
+        cpf_parsed = format_cpf(data_request.document)
+       
         financing = Financiamento(
             tipo_id=parser_person_type(data_request.person_type),
             etapa="dados_do_cliente",
@@ -53,7 +61,11 @@ class FinancingService(ServiceBase):
                 cidade_id=DEFAULT_CITY,
                 geracao_mensal=data_request.geracao_mensal,
             ),
+            cliente=Cliente(
+                cpf=cpf_parsed,
+            ),
         )
+
         if data_request.is_combo:
             financing.cotacao.fornecedor_id = DEFAULT_PROVIDER
 

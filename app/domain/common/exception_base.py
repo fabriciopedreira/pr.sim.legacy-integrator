@@ -72,3 +72,8 @@ class InsertDBException(APIException):
     def __init__(self, stacktrace: list, message):
         detail = f"Insert or update database error {message}"
         super().__init__(status.HTTP_404_NOT_FOUND, detail, stacktrace)
+
+class ResponseException(Exception):  
+    def __init__(self, error_code, error_msg):
+        self.error_code = error_code
+        self.error_msg = error_msg
