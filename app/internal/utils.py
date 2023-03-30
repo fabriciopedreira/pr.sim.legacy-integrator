@@ -15,7 +15,6 @@ def exc_info():
     type_, value, _ = sys.exc_info()
     return type_, value
 
-
 def latency(func: Callable):
     """Decorator to calculate endpoint latency. Print latency and response logs.
     :param: func: A callaable function
@@ -36,7 +35,6 @@ def latency(func: Callable):
         return result
 
     return wrapped_func
-
 
 def cache(seconds: int, maxsize: int = 128):
     """Decorator to applay cache with expiration time, allows to return the response of the function
@@ -66,10 +64,8 @@ def cache(seconds: int, maxsize: int = 128):
 
     return wrapper_cache
 
-
 def parser_person_type(person_type: str) -> int | None:
     return {"PF": 1, "PJ": 2, "PR": 3}.get(person_type.upper(), None)
-
 
 def parse_ipca(cet, ipca):
     if cet.upper() == "PRE_FIXADO":
@@ -79,9 +75,8 @@ def parse_ipca(cet, ipca):
     
 def has_valid_cpf(cpf: str) -> bool:
     cpf_parsed = cpf.replace(".", "").replace("-", "")
-
     return len(cpf_parsed) == 11 
 
-def format_cpf(cpf) -> str:
+def format_cpf(cpf: str) -> str:
     cpf_parsed = cpf.replace(".", "").replace("-", "")
     return f'{cpf_parsed[:3]}.{cpf_parsed[3:6]}.{cpf_parsed[6:9]}-{cpf_parsed[9:]}'
