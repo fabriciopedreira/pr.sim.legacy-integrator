@@ -24,6 +24,7 @@ class FinancingRequest(BaseModel):
     taxa_de_cadastro: float
     commission: float
     geracao_mensal: int = Field(default=15)
+    document: str
 
     class Config:
         schema_extra = {
@@ -47,6 +48,7 @@ class FinancingRequest(BaseModel):
                 "taxa_de_cadastro": 1.99,
                 "commission": 0.12,
                 "geracao_mensal": 15,
+                "document": "111.111.111-11",
             }
         }
 
