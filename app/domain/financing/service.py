@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError, OperationalError
 
+
 from app.domain.common.exception_base import InsertDBException, ParamsException, SQLAlchemyException, ValidationException
 from app.domain.common.legacy_model import Cliente, Cotacao, Financiamento, Parcela
 from app.domain.common.service_base import ServiceBase
