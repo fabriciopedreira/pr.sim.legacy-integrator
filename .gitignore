@@ -348,3 +348,10 @@ logs
 
 # poetry
 poetry.lock
+
+# Direnv
+.direnv/
+
+# Nix
+.nix-shell
+
