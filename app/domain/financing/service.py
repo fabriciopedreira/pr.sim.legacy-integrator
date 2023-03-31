@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.domain.common.exception_base import InsertDBException, ResponseException, SQLAlchemyException, ValidationException
+from app.domain.common.exception_base import InsertDBException, ParamsException, SQLAlchemyException, ValidationException
 from app.domain.common.legacy_model import Cliente, Cotacao, Financiamento, Parcela
 from app.domain.common.service_base import ServiceBase
 from app.domain.financing.repository import FinancingRepository
@@ -33,20 +33,20 @@ class FinancingService(ServiceBase):
         return financing
 
     async def financing_data(self, data_request):
-
         cpf = has_valid_cpf(data_request.document)
 
         if not cpf:
-            raise ResponseException(400, "Invalid cpf format!")
+            raise ParamsException(model=Financiamento.__tablename__)
 
         cpf_parsed = format_cpf(data_request.document)
-       
+        
         financing = Financiamento(
             tipo_id=parser_person_type(data_request.person_type),
             etapa="dados_do_cliente",
             status="em_andamento",
             parceiro_id=data_request.partner_id,
             user_id=data_request.user_id,
+            combo_facil=data_request.is_combo,
             cotacao=Cotacao(
                 external_simulation_id=data_request.project_id,
                 valor_do_projeto=data_request.financing_value,
@@ -67,10 +67,10 @@ class FinancingService(ServiceBase):
         )
 
         if data_request.is_combo:
-            financing.cotacao.fornecedor_id = DEFAULT_PROVIDER
-
+            financing.cotacao.fornecedor_id = DEFAULT_PROVIDER,
+        
         return financing
-
+    
     async def save_parcela(self, financing, data_request):
         parcela = Parcela(
             cotacao_id=financing.cotacao_id,

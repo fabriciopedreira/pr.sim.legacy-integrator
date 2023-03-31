@@ -77,3 +77,8 @@ class ResponseException(Exception):
     def __init__(self, error_code, error_msg):
         self.error_code = error_code
         self.error_msg = error_msg
+
+class ParamsException(APIException):
+    def __init__(self, model: str = "Values"):
+        detail = f"Invalid cpf not found"
+        super().__init__(status.HTTP_400_BAD_REQUEST, detail, severity=20)
