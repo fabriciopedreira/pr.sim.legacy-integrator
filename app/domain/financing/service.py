@@ -37,7 +37,7 @@ class FinancingService(ServiceBase):
         cpf = has_valid_cpf(data_request.document)
 
         if not cpf:
-            raise ParamsException(model=Financiamento.__tablename__)
+            raise ParamsException(model=Financiamento.__tablename__, detail="Invalid CPF")
 
         cpf_parsed = format_cpf(data_request.document)
         
