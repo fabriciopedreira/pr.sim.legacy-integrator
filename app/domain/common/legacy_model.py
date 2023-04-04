@@ -73,6 +73,7 @@ class Financiamento(EntityModelBase):
     status = Column(String(16))
     deletado = Column(Boolean, default=False)
     inativo = Column(Boolean, default=False)
+    combo_facil=Column(Boolean, default=False)
 
     cliente_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cliente.id"))
     empresa_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.empresa.id"))

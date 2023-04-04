@@ -77,3 +77,7 @@ class ResponseException(Exception):
     def __init__(self, error_code, error_msg):
         self.error_code = error_code
         self.error_msg = error_msg
+
+class ParamsException(APIException):
+    def __init__(self, detail: str, model: str = "Values" ):
+        super().__init__(status.HTTP_422_UNPROCESSABLE_ENTITY, detail, severity=20)

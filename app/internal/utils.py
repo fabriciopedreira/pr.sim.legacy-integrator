@@ -75,8 +75,10 @@ def parse_ipca(cet, ipca):
     
 def has_valid_cpf(cpf: str) -> bool:
     cpf_parsed = cpf.replace(".", "").replace("-", "")
+    
     return len(cpf_parsed) == 11 
 
 def format_cpf(cpf: str) -> str:
     cpf_parsed = cpf.replace(".", "").replace("-", "")
+
     return f'{cpf_parsed[:3]}.{cpf_parsed[3:6]}.{cpf_parsed[6:9]}-{cpf_parsed[9:]}'
