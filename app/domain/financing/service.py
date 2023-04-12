@@ -74,7 +74,7 @@ class FinancingService(ServiceBase):
     
     async def save_parcela(self, financing, data_request):
         # TODO valor_financiado and taxa_de_cadastro_bruta needs to come from Product-pricing
-        valor_financiado = data_request.valor_do_projeto - data_request.down_payment
+        valor_financiado = data_request.financing_value - data_request.down_payment
 
         taxa_de_cadastro_bruta = convert_registration_fee_to_gross_value(valor_financiado, data_request.taxa_de_cadastro)
 
