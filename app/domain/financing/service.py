@@ -73,6 +73,11 @@ class FinancingService(ServiceBase):
         return financing
     
     async def save_parcela(self, financing, data_request):
+        # TODO valor_financiado and taxa_de_cadastro_bruta needs to come from Product-pricing
+        valor_financiado = data_request.valor_do_projeto - data_request.down_payment
+
+        taxa_de_cadastro_bruta = convert_registration_fee_to_gross_value(valor_financiado, data_request.taxa_de_cadastro)
+
         parcela = Parcela(
             cotacao_id=financing.cotacao_id,
             cet=data_request.cet,
@@ -80,9 +85,18 @@ class FinancingService(ServiceBase):
             aliquota_iof=data_request.aliquot_iof,
             numero_de_parcelas=data_request.installments,
             valor_da_parcela=data_request.installment_value,
-            taxa_de_juros=data_request.taxa_de_juros,
-            taxa_de_cadastro=data_request.taxa_de_cadastro,
+            taxa_de_juros=convert_annual_to_monthly_rate(data_request.taxa_de_juros),
+            taxa_de_cadastro=taxa_de_cadastro_bruta,
             valor_da_comissao=data_request.commission,
         )
 
         await self.repository.save(parcela)
+
+def convert_annual_to_monthly_rate(annual_rate: float) -> float:
+    annual_rate_decimal = annual_rate / 100
+    monthly_rate_decimal = (1 + annual_rate_decimal) ** (1 / 12) - 1
+    monthly_rate = monthly_rate_decimal * 100
+    return monthly_rate
+
+def convert_registration_fee_to_gross_value(financed_value: float, registration_fee_percent: float) -> float:
+    return (registration_fee_percent * financed_value / 100)
