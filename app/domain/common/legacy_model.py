@@ -36,6 +36,8 @@ class Empresa(EntityModelBase):
     cnpj = Column(String(32))
     nome_fantasia = Column(String(128))
 
+    financiamento = relationship("Financiamento", back_populates="empresa")
+
 
 class TipoDeFinanciamento(EntityModelBase):
     __tablename__ = "tipo_de_financiamento"
@@ -73,7 +75,7 @@ class Financiamento(EntityModelBase):
     status = Column(String(16))
     deletado = Column(Boolean, default=False)
     inativo = Column(Boolean, default=False)
-    combo_facil=Column(Boolean, default=False)
+    combo_facil = Column(Boolean, default=False)
 
     cliente_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cliente.id"))
     empresa_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.empresa.id"))
@@ -86,6 +88,7 @@ class Financiamento(EntityModelBase):
     user_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.users.id"))
 
     cliente = relationship("Cliente", back_populates="financiamento")
+    empresa = relationship("Empresa", back_populates="financiamento")
     cotacao = relationship("Cotacao", back_populates="financiamento")
     parceiro = relationship("Parceiro", back_populates="financiamento")
     users = relationship("Users", back_populates="financiamento")
