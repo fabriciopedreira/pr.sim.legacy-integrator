@@ -12,6 +12,11 @@ from app.domain.common.exception_base import (
 )
 from app.domain.common.legacy_model import Cliente, Cotacao, Empresa, Financiamento, Parcela
 from app.domain.common.service_base import ServiceBase
+from app.domain.financing.financial_calcs import (
+    convert_annual_to_monthly_rate,
+    convert_registration_fee_to_total_amount,
+    pgto,
+)
 from app.domain.financing.repository import FinancingRepository
 from app.internal.config import DEFAULT_CALCULATOR, DEFAULT_CITY, DEFAULT_PROVIDER
 from app.internal.utils import exc_info, format_document, parse_ipca, parser_person_type, sanitize_document
@@ -93,9 +98,11 @@ class FinancingService(ServiceBase):
         # TODO valor_financiado and taxa_de_cadastro_bruta needs to come from Product-pricing
         valor_financiado = data_request.financing_value - data_request.down_payment
 
-        taxa_de_cadastro_bruta = convert_registration_fee_to_gross_value(
+        taxa_de_cadastro_bruta = convert_registration_fee_to_total_amount(
             valor_financiado, data_request.taxa_de_cadastro
         )
+
+        taxa_de_juros_mensalisada = convert_annual_to_monthly_rate(data_request.taxa_de_juros)
 
         parcela = Parcela(
             cotacao_id=financing.cotacao_id,
@@ -104,20 +111,53 @@ class FinancingService(ServiceBase):
             aliquota_iof=data_request.aliquot_iof,
             numero_de_parcelas=data_request.installments,
             valor_da_parcela=data_request.installment_value,
-            taxa_de_juros=convert_annual_to_monthly_rate(data_request.taxa_de_juros),
+            taxa_de_juros=taxa_de_juros_mensalisada,
             taxa_de_cadastro=taxa_de_cadastro_bruta,
             valor_da_comissao=data_request.commission,
         )
 
         await self.repository.save(parcela)
 
+        parcela_144x = await calculate_144x_installment(
+            financing, valor_financiado, taxa_de_juros_mensalisada, taxa_de_cadastro_bruta
+        )
 
-def convert_annual_to_monthly_rate(annual_rate: float) -> float:
-    annual_rate_decimal = annual_rate / 100
-    monthly_rate_decimal = (1 + annual_rate_decimal) ** (1 / 12) - 1
-    monthly_rate = monthly_rate_decimal * 100
-    return monthly_rate
+        await self.repository.save(parcela_144x)
 
 
-def convert_registration_fee_to_gross_value(financed_value: float, registration_fee_percent: float) -> float:
-    return registration_fee_percent * financed_value / 100
+async def calculate_144x_installment(
+    financing,
+    financed_amount: float,
+    monthly_interest_rate: float,
+    total_registration_fee: float,
+    commission: float = 0,
+) -> Parcela:
+    """
+    Nogord analysis requires a 144x installment to calculate energy saving.
+    Otherwise, Nogord rejects the project with "PROJETO RUIM" flag.
+
+    This should be removed as soon as they remove that Nogord rule.
+
+    """
+
+    total_financed_amount = financed_amount + total_registration_fee
+
+    estimated_iof_quota = 3.25
+
+    iof_total_amount = total_financed_amount * estimated_iof_quota / 100
+
+    installment_value = abs(pgto(monthly_interest_rate, 144, total_financed_amount, iof_total_amount))
+
+    legacy_cet = "PRE_FIXADO"
+
+    return Parcela(
+        cotacao_id=financing.cotacao_id,
+        cet=legacy_cet,
+        iof=iof_total_amount,
+        aliquota_iof=estimated_iof_quota,
+        numero_de_parcelas=144,
+        valor_da_parcela=installment_value,
+        taxa_de_juros=monthly_interest_rate,
+        taxa_de_cadastro=total_registration_fee,
+        valor_da_comissao=commission,
+    )

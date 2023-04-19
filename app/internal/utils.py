@@ -78,6 +78,12 @@ def parse_ipca(cet, ipca):
         return ipca
 
 
+def has_valid_cpf(cpf: str) -> bool:
+    cpf_parsed = cpf.replace(".", "").replace("-", "")
+
+    return len(cpf_parsed) == 11
+
+
 def sanitize_document(document: str) -> str | int:
     document_parsed = document.replace(".", "").replace("-", "").replace("/", "")
 
