@@ -346,9 +346,6 @@ tags
 # Developer localhost
 logs
 
-# poetry
-poetry.lock
-
 # Direnv
 .direnv/
 
