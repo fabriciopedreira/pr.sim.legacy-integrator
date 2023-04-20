@@ -28,7 +28,6 @@ class FinancingService(ServiceBase):
 
     async def create_financing(self, data_request):
         try:
-
             financing_data = await self.financing_data(data_request)
 
             financing = await self.repository.save(financing_data)
@@ -43,7 +42,6 @@ class FinancingService(ServiceBase):
         return financing
 
     async def financing_data(self, data_request):
-
         financing = Financiamento(
             tipo_id=parser_person_type(data_request.person_type),
             etapa="dados_do_cliente",
