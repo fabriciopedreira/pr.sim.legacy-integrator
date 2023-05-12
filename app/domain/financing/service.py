@@ -28,7 +28,6 @@ class FinancingService(ServiceBase):
 
     async def create_financing(self, data_request):
         try:
-
             financing_data = await self.financing_data(data_request)
 
             financing = await self.repository.save(financing_data)
@@ -43,7 +42,6 @@ class FinancingService(ServiceBase):
         return financing
 
     async def financing_data(self, data_request):
-
         financing = Financiamento(
             tipo_id=parser_person_type(data_request.person_type),
             etapa="dados_do_cliente",
@@ -98,11 +96,9 @@ class FinancingService(ServiceBase):
         # TODO valor_financiado and taxa_de_cadastro_bruta needs to come from Product-pricing
         valor_financiado = data_request.financing_value - data_request.down_payment
 
-        taxa_de_cadastro_bruta = convert_registration_fee_to_total_amount(
+        taxa_de_cadastro_bruto = convert_registration_fee_to_total_amount(
             valor_financiado, data_request.taxa_de_cadastro
         )
-
-        taxa_de_juros_mensalisada = convert_annual_to_monthly_rate(data_request.taxa_de_juros)
 
         parcela = Parcela(
             cotacao_id=financing.cotacao_id,
@@ -111,15 +107,15 @@ class FinancingService(ServiceBase):
             aliquota_iof=data_request.aliquot_iof,
             numero_de_parcelas=data_request.installments,
             valor_da_parcela=data_request.installment_value,
-            taxa_de_juros=taxa_de_juros_mensalisada,
-            taxa_de_cadastro=taxa_de_cadastro_bruta,
+            taxa_de_juros=data_request.taxa_de_juros,
+            taxa_de_cadastro=taxa_de_cadastro_bruto,
             valor_da_comissao=data_request.commission,
         )
 
         await self.repository.save(parcela)
 
         parcela_144x = await calculate_144x_installment(
-            financing, valor_financiado, taxa_de_juros_mensalisada, taxa_de_cadastro_bruta
+            financing, valor_financiado, data_request.taxa_de_juros, taxa_de_cadastro_bruto
         )
 
         await self.repository.save(parcela_144x)
