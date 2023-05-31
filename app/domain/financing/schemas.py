@@ -46,7 +46,7 @@ class FinancingRequest(BaseModel):
                 "installment_value": 12.23,
                 "taxa_de_juros": 3.15,
                 "taxa_de_cadastro": 1.99,
-                "commission": 0.12,
+                "commission": 1.0,
                 "geracao_mensal": 15,
                 "document": "111.111.111-11",
             }

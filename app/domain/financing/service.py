@@ -10,7 +10,7 @@ from app.domain.common.exception_base import (
     SQLAlchemyException,
     ValidationException,
 )
-from app.domain.common.legacy_model import Cliente, Cotacao, Empresa, Financiamento, Parcela
+from app.domain.common.legacy_model import Cliente, Comissao, Cotacao, Empresa, Financiamento, Parcela
 from app.domain.common.service_base import ServiceBase
 from app.domain.financing.financial_calcs import (
     convert_annual_to_monthly_rate,
@@ -62,6 +62,7 @@ class FinancingService(ServiceBase):
                 calculadora_id=DEFAULT_CALCULATOR,
                 cidade_id=DEFAULT_CITY,
                 geracao_mensal=data_request.geracao_mensal,
+                comissao=Comissao(valor=data_request.commission, tipo="comissao"),
             ),
         )
 
@@ -109,7 +110,9 @@ class FinancingService(ServiceBase):
             valor_da_parcela=data_request.installment_value,
             taxa_de_juros=data_request.taxa_de_juros,
             taxa_de_cadastro=taxa_de_cadastro_bruto,
-            valor_da_comissao=data_request.commission,
+            valor_da_comissao=await calculate_gross_commission(
+                commission=data_request.commission, financed_value=valor_financiado
+            ),
         )
 
         await self.repository.save(parcela)
@@ -119,6 +122,19 @@ class FinancingService(ServiceBase):
         )
 
         await self.repository.save(parcela_144x)
+
+
+async def calculate_gross_commission(commission: float, financed_value: float) -> float:
+    """
+    Calculate gross commission based on financed value.
+    """
+
+    fixed_tax_to_be_charged_of_customer = 1.25
+
+    if commission >= 0 and commission <= 5:
+        return (commission * fixed_tax_to_be_charged_of_customer) * financed_value / 100
+
+    raise ValueError("Invalid commission value. Must be between 0 and 5.")
 
 
 async def calculate_144x_installment(
