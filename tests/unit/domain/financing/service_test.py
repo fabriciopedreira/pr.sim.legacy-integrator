@@ -38,7 +38,7 @@ def data_request():
         installment_value=12.23,
         taxa_de_juros=3.15,
         taxa_de_cadastro=1.99,
-        commission=0.12,
+        commission=1.0,
         geracao_mensal=15,
         document="111.111.111-11",
     )
@@ -68,13 +68,16 @@ async def test_document_invalid_format(financing_service, data_request):
 async def test_creating_financing_with_CPF_succes(financing_service, data_request):
     await financing_service.create_financing(data_request)
 
+    financed_value = data_request.financing_value - data_request.down_payment
+    gross_commission_value = 1.25 * financed_value / 100
+
     parcela = financing_service.repository.save.call_args_list[1][0][0]
     assert parcela.cet == data_request.cet
     assert parcela.iof == data_request.iof
     assert parcela.aliquota_iof == data_request.aliquot_iof
     assert parcela.numero_de_parcelas == data_request.installments
     assert parcela.valor_da_parcela == data_request.installment_value
-    assert parcela.valor_da_comissao == data_request.commission
+    assert parcela.valor_da_comissao == gross_commission_value
 
     financing = financing_service.repository.save.call_args_list[0][0][0]
     assert financing.tipo_id == 1
@@ -95,6 +98,9 @@ async def test_creating_financing_with_CNPJ_succes(financing_service, data_reque
     data_request.person_type = person_type_for_CNPJ
     data_request.document = valid_document_for_CNPJ
 
+    financed_value = data_request.financing_value - data_request.down_payment
+    gross_commission_value = 1.25 * financed_value / 100
+
     await financing_service.create_financing(data_request)
 
     parcela = financing_service.repository.save.call_args_list[1][0][0]
@@ -104,7 +110,7 @@ async def test_creating_financing_with_CNPJ_succes(financing_service, data_reque
     assert parcela.numero_de_parcelas == data_request.installments
     assert parcela.valor_da_parcela == data_request.installment_value
 
-    assert parcela.valor_da_comissao == data_request.commission
+    assert parcela.valor_da_comissao == gross_commission_value
 
     financing = financing_service.repository.save.call_args_list[0][0][0]
     assert financing.tipo_id == 2

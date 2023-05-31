@@ -130,6 +130,15 @@ class Parcela(EntityModelBase):
     cotacao = relationship("Cotacao", back_populates="parcelas")
 
 
+class Comissao(EntityModelBase):
+    __tablename__ = "comissao"
+
+    valor = Column(Float, nullable=True)
+    tipo = Column(String(16), nullable=True)
+    pagamento_realizado = Column(Boolean, default=False)
+    cotacao = relationship("Cotacao", back_populates="comissao")
+
+
 class Cotacao(EntityModelBase):
     __tablename__ = "cotacao"
 
@@ -151,11 +160,13 @@ class Cotacao(EntityModelBase):
     fornecedor_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.fornecedor.id"), nullable=True)
     calculadora_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.calculadora.id"), nullable=True)
     cidade_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cidade.id"), nullable=True)
+    comissao_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.comissao.id"))
 
     financiamento = relationship("Financiamento", back_populates="cotacao")
     fornecedor = relationship("Fornecedor", back_populates="cotacao")
     calculadora = relationship("Calculadora", back_populates="cotacao")
     cidade = relationship("Cidade", back_populates="cotacao")
+    comissao = relationship("Comissao", back_populates="cotacao")
 
     parcelas = relationship(
         "Parcela",
