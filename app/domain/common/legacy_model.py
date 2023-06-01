@@ -134,7 +134,7 @@ class Comissao(EntityModelBase):
     __tablename__ = "comissao"
 
     valor = Column(Float, nullable=True)
-    tipo = Column(String(16), nullable=True)
+    tipo = Column(String(16), nullable=True, default="comissao")
     pagamento_realizado = Column(Boolean, default=False)
     cotacao = relationship("Cotacao", back_populates="comissao")
 
