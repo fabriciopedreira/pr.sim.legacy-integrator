@@ -69,7 +69,7 @@ async def test_creating_financing_with_CPF_succes(financing_service, data_reques
     await financing_service.create_financing(data_request)
 
     financed_value = data_request.financing_value - data_request.down_payment
-    gross_commission_value = 1.25 * financed_value / 100
+    gross_commission_value = 1 * financed_value / 100
 
     parcela = financing_service.repository.save.call_args_list[1][0][0]
     assert parcela.cet == data_request.cet
@@ -99,7 +99,7 @@ async def test_creating_financing_with_CNPJ_succes(financing_service, data_reque
     data_request.document = valid_document_for_CNPJ
 
     financed_value = data_request.financing_value - data_request.down_payment
-    gross_commission_value = 1.25 * financed_value / 100
+    gross_commission_value = 1 * financed_value / 100
 
     await financing_service.create_financing(data_request)
 
