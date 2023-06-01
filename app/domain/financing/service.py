@@ -61,13 +61,14 @@ class FinancingService(ServiceBase):
                 numero_de_parcelas=data_request.installments,
                 calculadora_id=DEFAULT_CALCULATOR,
                 cidade_id=DEFAULT_CITY,
-                geracao_mensal=data_request.geracao_mensal,
-                comissao=Comissao(valor=data_request.commission, tipo="comissao"),
             ),
         )
 
         if data_request.is_combo:
             financing.cotacao.fornecedor_id = DEFAULT_PROVIDER
+
+        if data_request.commission > 0 and data_request.commission <= 5:
+            financing.cotacao.comissao = Comissao(valor=data_request.commission)
 
         return await self.save_document(financing, data_request)
 
