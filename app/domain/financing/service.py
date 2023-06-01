@@ -128,7 +128,7 @@ async def calculate_gross_commission(commission: float, financed_value: float) -
     """
     Calculate gross commission based on financed value.
     """
-    
+
     if commission >= 0 and commission <= 5:
         return commission * financed_value / 100
 
