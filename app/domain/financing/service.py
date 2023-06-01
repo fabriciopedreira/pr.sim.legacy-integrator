@@ -128,11 +128,9 @@ async def calculate_gross_commission(commission: float, financed_value: float) -
     """
     Calculate gross commission based on financed value.
     """
-
-    fixed_tax_to_be_charged_of_customer = 1.25
-
+    
     if commission >= 0 and commission <= 5:
-        return (commission * fixed_tax_to_be_charged_of_customer) * financed_value / 100
+        return commission * financed_value / 100
 
     raise ValueError("Invalid commission value. Must be between 0 and 5.")
 
