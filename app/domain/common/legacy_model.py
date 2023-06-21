@@ -181,13 +181,22 @@ class Parceiro(EntityModelBase):
     __tablename__ = "parceiro"
 
     financiamento = relationship("Financiamento", back_populates="parceiro")
+    users = relationship("Users", back_populates="parceiro")
 
 
 class Users(EntityModelBase):
     __tablename__ = "users"
 
-    fornecedor_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.fornecedor.id"))
+    confirmed = Column(Boolean, default=False, nullable=True)
+    nome_completo = Column(String(255), nullable=True)
+    perfil = Column(String(128), nullable=True)
 
+    fornecedor_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.fornecedor.id"))
+    parceiro_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.parceiro.id"))
+    contato_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.contato.id"))
+
+    contato = relationship("Contato", back_populates="users")
+    parceiro = relationship("Parceiro", back_populates="users")
     financiamento = relationship("Financiamento", back_populates="users")
     fornecedor = relationship("Fornecedor", back_populates="users")
 
@@ -209,3 +218,12 @@ class Cidade(EntityModelBase):
     __tablename__ = "cidade"
 
     cotacao = relationship("Cotacao", back_populates="cidade")
+
+
+class Contato(EntityModelBase):
+    __tablename__ = "contato"
+
+    celular = Column(String(16), nullable=True)
+    email = Column(String(128), nullable=True)
+
+    users = relationship("Users", back_populates="contato")

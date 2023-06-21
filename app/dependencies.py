@@ -35,6 +35,8 @@ async def access_validation(
     if not await Auth().token_validation(token=authorization.credentials):
         raise UnauthorizedException(stacktrace=["access_validation"], kid=Auth.get_kid(authorization.credentials))
 
+    return authorization.credentials
+
 
 @latency
 async def access_validation_fixed_token(

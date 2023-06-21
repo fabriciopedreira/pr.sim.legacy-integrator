@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 from typing import Callable
 
+import jwt
 from async_lru import alru_cache
 from loguru import logger
 
@@ -100,3 +101,14 @@ def format_document(size_document: int, document: str) -> str:
         applied_mask = f"{document[:2]}.{document[2:5]}.{document[5:8]}/{document[8:12]}-{document[12:]}"
 
     return applied_mask
+
+
+def get_sub(token: str) -> int:
+    """Get user sub from jwt token
+    :param: token: jwt token
+    """
+    try:
+        payload: dict[str, Any] = jwt.decode(token, options={"verify_signature": False})  # type: ignore
+        return int(payload.get("sub", 0))
+    except Exception:
+        return 0
