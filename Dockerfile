@@ -14,7 +14,7 @@ ENV SERVICE_HOME=/usr/src/application \
 
 RUN apt-get update -y &&  \
     apt-get upgrade -y &&  \
-    apt-get -y install netcat && \
+    apt install netcat-traditional && \
     rm -rf /var/lib/apt/lists/* && \
     mkdir $SERVICE_HOME
 
