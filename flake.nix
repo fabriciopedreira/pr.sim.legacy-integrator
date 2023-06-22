@@ -27,9 +27,10 @@
       in
         with pkgs; rec {
           # packages = {};
+
           devShell = mkShell {
-            name = "dev-shell";
-            buildInputs = [pkgs.python3 pkgs.poetry pkgs.pylint pkgs.stdenv.cc.cc.lib pkgs.libstdcxx5 ci-tests];
+            name = "development-shell";
+            buildInputs = [pkgs.python310 pkgs.poetry pkgs.pylint pkgs.stdenv.cc.cc.lib pkgs.libstdcxx5 ci-tests];
             #resolution of libstdc++.so.6 error
             shellHook = ''
               export LD_LIBRARY_PATH=${pkgs.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH
