@@ -25,7 +25,7 @@ class UserRepository(RepositoryBase):
             )
             .filter_by(id=user_id)
             .join(Contato, Users.contato_id == Contato.id)
-            .first()
+            .one_or_none()
         )
 
         if result:

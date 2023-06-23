@@ -27,7 +27,6 @@ class UsersResponse(BaseModel):
     confirmed: bool
     contact: ContactResponse
     partner: PartnerResponse
-    functionPrincipal: str
     complete_name: str
     perfil: str
 
@@ -37,7 +36,6 @@ class UsersResponse(BaseModel):
             "confirmed": True,
             "contact": {"id": 1, "email": "testes@solfacil.com.br", "phone": "(11) 99999-9999"},
             "partner": {"id": 1},
-            "functionPrincipal": "Testes",
             "complete_name": "Testes",
             "perfil": "admin",
         }

@@ -24,7 +24,7 @@ PROJECT_CONTACT_API = config(
         "email": information.get("contact")[1],
     },
 )
-BASIC_HEADERS = {"Content-Type": "application/json"}
+BASIC_HEADERS = {"Content-Type": "application/json", "accept": "application/json"}
 
 # Postgres Database
 DATABASE_PORT = config("DATABASE_PORT", cast=int, default=5432)
@@ -67,6 +67,12 @@ GUNICORN_WORKERS = config("GUNICORN_WORKERS", cast=int, default=0)
 GUNICORN_KEEPALIVE = config("GUNICORN_KEEPALIVE", cast=int, default=5)
 GUNICORN_GRACEFUL_TIMEOUT = config("GUNICORN_GRACEFUL_TIMEOUT", cast=int, default=120)
 GUNICORN_TIMEOUT = config("GUNICORN_TIMEOUT", cast=int, default=120)
+
+# External services
+MAX_ATTEMPTS = 5
+REQUEST_TIMEOUT = 99
+TIME_SLEEP = 1
+VERIFY = True
 
 # SSO - Keycloak
 KEYCLOAK_BASE_URL = config("KEYCLOAK_BASE_URL", cast=str, default="")

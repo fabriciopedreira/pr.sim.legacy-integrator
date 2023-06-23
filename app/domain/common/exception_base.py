@@ -21,15 +21,15 @@ class APIException(HTTPException):
             log_detail += f" Stacktrace=[{stacktrace}]"
 
         # https://loguru.readthedocs.io/en/stable/api/logger.html
-        match severity:
-            case 20:  # INFO
-                logger.info(log_detail)
-            case 30:  # WARNING
-                logger.warning(log_detail)
-            case 50:  # CRITICAL
-                logger.critical(log_detail)
-            case _:
-                logger.opt(exception=True).error(log_detail)
+        
+        if severity == 20:  # INFO
+            logger.info(log_detail)
+        elif severity == 30:  # WARNING
+            logger.warning(log_detail)
+        elif severity == 50:  # CRITICAL
+            logger.critical(log_detail)
+        else:
+            logger.opt(exception=True).error(log_detail)
 
         super().__init__(status_code, detail)
 
@@ -38,6 +38,10 @@ class SQLAlchemyException(APIException):
     def __init__(self, stacktrace: list):
         detail = "SQLAlchemy - error detected in the ORM or database offline"
         super().__init__(status.HTTP_500_INTERNAL_SERVER_ERROR, detail, stacktrace, severity=50)
+
+class APIError(APIException):
+    def __init__(self, stacktrace: list, detail: str = "Authtentication - error detected in the authtentication process"):
+        super().__init__(status.HTTP_403_FORBIDDEN, detail, stacktrace, severity=20)
 
 
 class AuthenticationException(APIException):
@@ -54,6 +58,10 @@ class UnauthorizedException(APIException):
             detail += f" - Kid=[{kid}]"
 
         super().__init__(status.HTTP_401_UNAUTHORIZED, detail, stacktrace, severity=30)
+
+class UnprocessEntity(APIException):
+    def __init__(self, stacktrace: list, detail):
+        super().__init__(status.HTTP_422_UNPROCESSABLE_ENTITY, detail, stacktrace, severity=30)
 
 
 class ValidationException(APIException):
@@ -81,3 +89,22 @@ class ResponseException(Exception):
 class ParamsException(APIException):
     def __init__(self, detail: str, model: str = "Values" ):
         super().__init__(status.HTTP_422_UNPROCESSABLE_ENTITY, detail, severity=20)
+
+class ServiceBadRequestException(APIException):
+    def __init__(self, stacktrace: list, detail: str = "Bad Request - error in the request"):
+        super().__init__(status.HTTP_400_BAD_REQUEST, detail, stacktrace, severity=20)
+
+class ServiceNotFoundException(APIException):
+    def __init__(self, stacktrace: list):
+        detail = "Not Found - resource not found"
+        super().__init__(status.HTTP_404_NOT_FOUND, detail, stacktrace, severity=20)
+
+class ServiceRequestException(APIException):
+    def __init__(self, stacktrace: list, detail: str = "Bad Request - error in the request"):
+        super().__init__(status.HTTP_400_BAD_REQUEST, detail, stacktrace, severity=20)
+
+class ServiceUnauthorizedException(APIException):
+    def __init__(self, stacktrace: list):
+        detail = "Unauthorized - authentication credentials are missing or invalid"
+        super().__init__(status.HTTP_401_UNAUTHORIZED, detail, stacktrace, severity=20)
+
