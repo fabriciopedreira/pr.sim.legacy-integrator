@@ -4,8 +4,8 @@ on:
   pull_request:
 
 jobs:
-  tests:
-    runs-on: ubuntu-latest
+  passcheck:
+    runs-on: k8s-runner
 
     services:
       postgres:
@@ -18,9 +18,21 @@ jobs:
         ports:
           - 5432:5432
 
+    defaults:
+      run:
+        shell: nix develop --command bash {0}
+
     steps:
-    - uses: actions/checkout@v3
-    - name: Install Nix
-      uses: cachix/install-nix-action@v17
-    - name: Run tests
-      run: nix develop --experimental-features 'nix-command flakes' --command 'ci-tests'
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Install Nix
+        uses: cachix/install-nix-action@v20
+      - name: Poetry install
+        run: |
+          poetry install
+      - name: Run Tests
+        run: |
+          poetry run pytest
+
+      
+  
