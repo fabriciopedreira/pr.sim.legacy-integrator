@@ -15,7 +15,7 @@ from app.internal.utils import exc_info
 class UserService(ServiceBase):
     repository: UserRepository
 
-    async def get_user(self, user_id: int):
+    async def get_user(self, user_id: int) -> UsersResponse:
         try:
             user = await self.repository.get_information_user_by_id(user_id)
 
@@ -37,7 +37,6 @@ class UserService(ServiceBase):
                 confirmed=user.confirmed,
                 contact=contact,
                 partner=partner,
-                functionPrincipal="loading...",
                 complete_name=user.nome_completo,
                 perfil=user.perfil,
             )
