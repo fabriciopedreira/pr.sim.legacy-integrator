@@ -16,12 +16,21 @@ on:
         description: Environment name?
         options:
         - hmla
+        - hmla2
         - stg
         - prod
+        
 jobs:
   hmla:
     uses: solfacil/github-actions-workflows/.github/workflows/DockerBuildAndPush.yml@main
     if: ${{ github.event.inputs.env == 'hmla' }}
+    with:
+      env: ${{ github.event.inputs.env }}
+      app_name: ${{ github.event.inputs.app_name }}
+    secrets: inherit
+  hmla2:
+    uses: solfacil/github-actions-workflows/.github/workflows/DockerBuildAndPush.yml@main
+    if: ${{ github.event.inputs.env == 'hmla2' }}
     with:
       env: ${{ github.event.inputs.env }}
       app_name: ${{ github.event.inputs.app_name }}
