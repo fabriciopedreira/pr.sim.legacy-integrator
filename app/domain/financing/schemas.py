@@ -1,7 +1,7 @@
 import uuid
 from random import randint
 
-from pydantic import UUID4, BaseModel, Field
+from pydantic import UUID4, BaseModel
 
 
 class FinancingRequest(BaseModel):
@@ -60,3 +60,12 @@ class FinancingResponse(BaseModel):
         schema_extra = {
             "example": {"financing_id": randint(1000, 9999), "message": "Financing created successfully!", "code": 201}
         }
+
+
+class PermissionUpdateFinancingResponse(BaseModel):
+    project_id: uuid.UUID
+    can_update_values: bool
+    code: int
+
+    class Config:
+        schema_extra = {"example": {"project_id": uuid.uuid4(), "can_update_values": False, "code": 200}}

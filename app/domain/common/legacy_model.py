@@ -92,6 +92,7 @@ class Financiamento(EntityModelBase):
     cotacao = relationship("Cotacao", back_populates="financiamento")
     parceiro = relationship("Parceiro", back_populates="financiamento")
     users = relationship("Users", back_populates="financiamento")
+    clicksign = relationship("Clicksign", back_populates="financiamento")
 
 
 class Formalizacao(EntityModelBase):
@@ -227,3 +228,18 @@ class Contato(EntityModelBase):
     email = Column(String(128), nullable=True)
 
     users = relationship("Users", back_populates="contato")
+
+
+class Clicksign(EntityModelBase):
+    __tablename__ = "clicksign"
+
+    tipo_documento = Column(String(128), nullable=True)
+
+    solicitado_por_email = Column(Boolean, nullable=False, default=False)
+    solicitado_por_whatsapp = Column(Boolean, nullable=False, default=False)
+    avalista_solicitado_por_email = Column(Boolean, nullable=False, default=False)
+    avalista_solicitado_por_whatsapp = Column(Boolean, nullable=False, default=False)
+
+    financiamento_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.financiamento.id"))
+
+    financiamento = relationship("Financiamento", back_populates="clicksign")
