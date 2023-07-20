@@ -1,4 +1,5 @@
 import traceback
+import uuid
 from dataclasses import dataclass
 
 from pydantic import ValidationError
@@ -6,18 +7,16 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 
 from app.domain.common.exception_base import (
     InsertDBException,
+    NotFoundException,
     ParamsException,
     SQLAlchemyException,
     ValidationException,
 )
 from app.domain.common.legacy_model import Cliente, Comissao, Cotacao, Empresa, Financiamento, Parcela
 from app.domain.common.service_base import ServiceBase
-from app.domain.financing.financial_calcs import (
-    convert_annual_to_monthly_rate,
-    convert_registration_fee_to_total_amount,
-    pgto,
-)
+from app.domain.financing.financial_calcs import convert_registration_fee_to_total_amount, pgto
 from app.domain.financing.repository import FinancingRepository
+from app.enum import FinancingStage
 from app.internal.config import DEFAULT_CALCULATOR, DEFAULT_CITY, DEFAULT_PROVIDER
 from app.internal.utils import exc_info, format_document, parse_ipca, parser_person_type, sanitize_document
 
@@ -123,6 +122,23 @@ class FinancingService(ServiceBase):
         )
 
         await self.repository.save(parcela_144x)
+
+    async def can_update_financing(self, project_id: uuid.UUID) -> bool | NotFoundException:
+        """
+        Check if a project has a contract generated.
+        """
+
+        financing = await self.repository.get_financing_by_project_id(project_id)
+
+        if not financing:
+            raise NotFoundException("Financing")
+
+        if not (financing.etapa == FinancingStage.contract_signing):
+            return False
+
+        contract_clicksing = await self.repository.is_contract_clicksign_by_financing_id(financing.id)
+ 
+        return contract_clicksing
 
 
 async def calculate_gross_commission(commission: float, financed_value: float) -> float:
