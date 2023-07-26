@@ -9,6 +9,8 @@ from app.domain.common.exception_base import (
     InsertDBException,
     NotFoundException,
     ParamsException,
+    ResponseException,
+    ServiceBadRequestException,
     SQLAlchemyException,
     ValidationException,
 )
@@ -16,6 +18,7 @@ from app.domain.common.legacy_model import Cliente, Comissao, Cotacao, Empresa, 
 from app.domain.common.service_base import ServiceBase
 from app.domain.financing.financial_calcs import convert_registration_fee_to_total_amount, pgto
 from app.domain.financing.repository import FinancingRepository
+from app.domain.financing.schemas import InstallmentData
 from app.enum import FinancingStage
 from app.internal.config import DEFAULT_CALCULATOR, DEFAULT_CITY, DEFAULT_PROVIDER
 from app.internal.utils import exc_info, format_document, parse_ipca, parser_person_type, sanitize_document
@@ -95,10 +98,10 @@ class FinancingService(ServiceBase):
 
     async def save_parcela(self, financing, data_request):
         # TODO valor_financiado and taxa_de_cadastro_bruta needs to come from Product-pricing
-        valor_financiado = data_request.financing_value - data_request.down_payment
+        financing_value = data_request.financing_value - data_request.down_payment
 
         taxa_de_cadastro_bruto = convert_registration_fee_to_total_amount(
-            valor_financiado, data_request.taxa_de_cadastro
+            financing_value, data_request.taxa_de_cadastro
         )
 
         parcela = Parcela(
@@ -111,17 +114,109 @@ class FinancingService(ServiceBase):
             taxa_de_juros=data_request.taxa_de_juros,
             taxa_de_cadastro=taxa_de_cadastro_bruto,
             valor_da_comissao=await calculate_gross_commission(
-                commission=data_request.commission, financed_value=valor_financiado
+                commission=data_request.commission, financed_value=financing_value
             ),
         )
 
         await self.repository.save(parcela)
 
-        parcela_144x = await calculate_144x_installment(
-            financing, valor_financiado, data_request.taxa_de_juros, taxa_de_cadastro_bruto
-        )
+        if data_request.installments != 144:
+            parcela_144x = await calculate_144x_installment(
+                financing, financing_value, data_request.taxa_de_juros, taxa_de_cadastro_bruto
+            )
 
-        await self.repository.save(parcela_144x)
+            await self.repository.save(parcela_144x)
+
+    async def update_financing(
+        self,
+        project_id: uuid.UUID,
+        project_value: float,
+        down_payment: float,
+        grace_period: int,
+        cet: str,
+        ipca: str,
+        is_combo: bool,
+        installments: int,
+        iof: float,
+        aliquot_iof: float,
+        installment_value: float,
+        taxa_de_juros: float,
+        registration_fee: float,
+        commission: float,
+        system_power: float | None = None,
+    ):
+        try:
+
+            can_update = await self.can_update_financing(project_id)
+
+            if not can_update:
+                raise ResponseException(400, "Financing can't be updated")
+
+            data_financing = await self.repository.get_financing_and_quotation_by_project_id(project_id)
+
+            await self.repository.update(
+                model=Financiamento,
+                model_id=data_financing.financing_id,
+                values={"combo_facil": is_combo},
+                commit=False,
+            )
+
+            created_commission = await self.__create_quotation(commission)
+
+            update_values = {
+                "carencia": grace_period - 1,
+                "valor_do_projeto": project_value,
+                "entrada": down_payment,
+                "cet": cet,
+                "comissao_id": created_commission.id if created_commission else None,
+                "numero_de_parcelas": installments,
+                "ipca": parse_ipca(cet, ipca),
+                "ipca_vigente": ipca,
+                "fornecedor_id": DEFAULT_PROVIDER if is_combo else None,
+            }
+
+            if system_power:
+                update_values["potencia_do_sistema"] = system_power
+
+            await self.repository.update(model=Cotacao, model_id=data_financing.quotation_id, values=update_values)
+
+            financing_value = project_value - down_payment
+
+            raw_registration_fee = convert_registration_fee_to_total_amount(financing_value, registration_fee)
+
+            installment = InstallmentData(
+                iof=iof,
+                aliquota_iof=aliquot_iof,
+                cet=cet,
+                cotacao_id=data_financing.quotation_id,
+                numero_de_parcelas=installments,
+                valor_da_parcela=installment_value,
+                taxa_de_cadastro=raw_registration_fee,
+                taxa_de_juros=taxa_de_juros,
+                valor_da_comissao=await calculate_gross_commission(
+                    commission=commission, financed_value=financing_value
+                ),
+            )
+
+            await self.repository.create_or_update_installments(installment)
+
+            return data_financing.financing_id
+
+        except OperationalError as exc:
+            raise SQLAlchemyException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
+        except ValidationError as exc:
+            raise ValidationException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
+        except ResponseException as exc:
+            raise ServiceBadRequestException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
+        except IntegrityError as exc:
+            raise InsertDBException(stacktrace=traceback.format_exception_only(*exc_info()), message=exc) from exc
+
+    async def __create_quotation(self, commission: float) -> None | int:
+
+        if commission == 0:
+            return None
+
+        return await self.repository.save(Comissao(valor=commission))
 
     async def can_update_financing(self, project_id: uuid.UUID) -> bool | NotFoundException:
         """
@@ -137,7 +232,7 @@ class FinancingService(ServiceBase):
             return False
 
         contract_clicksing = await self.repository.is_contract_clicksign_by_financing_id(financing.id)
- 
+
         return contract_clicksing
 
 

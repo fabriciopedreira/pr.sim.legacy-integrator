@@ -1,7 +1,11 @@
 import uuid
+from typing import Any, Dict, Optional
 
-from app.domain.common.legacy_model import Clicksign, Cotacao, EntityModelBase, Financiamento
+from sqlalchemy import insert, update
+
+from app.domain.common.legacy_model import Clicksign, Comissao, Cotacao, EntityModelBase, Financiamento, Parcela
 from app.domain.common.repository_base import RepositoryBase
+from app.domain.financing.schemas import FinancingCotationDTO, InstallmentData
 
 
 class FinancingRepository(RepositoryBase):
@@ -10,6 +14,45 @@ class FinancingRepository(RepositoryBase):
         self.session_db.commit()
         self.session_db.refresh(model)
         return model
+
+    async def remove(self, model: EntityModelBase, model_id: int, commit: Optional[bool] = True) -> tuple[Any] | None:
+
+        result = self.session_db.query(model).filter_by(id=model_id).one_or_none()
+
+        if result:
+            self.session_db.delete(result)
+
+            if commit:
+                self.session_db.commit()
+            return model_id
+
+        return None
+
+    async def update(
+        self, model: EntityModelBase, model_id: int, values: Dict[str, Any], commit: Optional[bool] = True
+    ) -> tuple[Any] | None:
+        """Update BaseModel in database
+        :param model: Model
+        :param model_id: ID of the model
+        :param values: Dictionary values of the model to be updated
+        :param commit: Optional commit in database
+
+        :return: mode_id or None
+        """
+
+        stmt = update(model).where(model.id == model_id).values(values)
+        self.session_db.execute(stmt)
+
+        if commit:
+            self.session_db.commit()
+            return model_id
+
+        return None
+
+    async def get(self, model: EntityModelBase, model_id: int) -> EntityModelBase | None:
+        result = self.session_db.query(model).filter_by(id=model_id).one_or_none()
+
+        return result
 
     async def get_financing_by_project_id(self, project_id: uuid.UUID) -> EntityModelBase | None:
 
@@ -31,4 +74,84 @@ class FinancingRepository(RepositoryBase):
             .count()
         )
 
-        return result >= 1
+        return result == 0
+
+    async def get_contract_by_financing_id(self, financing_id: uuid.UUID) -> EntityModelBase | None:
+
+        result = (
+            self.session_db.query(Clicksign)
+            .join(Financiamento, Clicksign.financiamento_id == Financiamento.id)
+            .filter(Financiamento.id == str(financing_id), Clicksign.tipo_documento == "contrato")
+            .one_or_none()
+        )
+
+        return result
+
+    async def get_parcela_by_quotation_id(self, quotation_id: uuid.UUID) -> EntityModelBase | None:
+
+        result = (
+            self.session_db.query(Parcela)
+            .filter(Parcela.cotacao_id == str(quotation_id), Parcela.numero_de_parcelas != 144)
+            .one_or_none()
+        )
+
+        if result is None:
+            result = self.get_parcela144x_by_quotation_id(quotation_id=quotation_id)
+
+        return result
+
+    async def get_parcela144x_by_quotation_id(self, quotation_id: uuid.UUID) -> EntityModelBase | None:
+
+        result = (
+            self.session_db.query(Parcela)
+            .filter(Parcela.cotacao_id == str(quotation_id), Parcela.numero_de_parcelas == 144)
+            .one_or_none()
+        )
+        return result
+
+    async def get_financing_and_quotation_by_project_id(self, project_id: uuid.UUID) -> FinancingCotationDTO | None:
+        """Get information of financing end quotation by project_id
+        :param: project_id: UUID of the project
+
+        :return: FinancingCotationDTO or None
+        """
+
+        result = (
+            self.session_db.query(
+                Cotacao.comissao_id,
+                Financiamento.id,
+                Financiamento.cotacao_id,
+                Financiamento.combo_facil,
+            )
+            .filter_by(external_simulation_id=str(project_id))
+            .join(Financiamento, Financiamento.cotacao_id == Cotacao.id)
+            .one_or_none()
+        )
+
+        if result:
+            result = FinancingCotationDTO(
+                commission_id=result[0],
+                financing_id=result[1],
+                quotation_id=result[2],
+                has_combo_facil=result[3],
+            )
+        return result
+
+    async def create_or_update_installments(self, installment_data: InstallmentData) -> None:
+
+        stmt = (
+            update(Parcela)
+            .where(Parcela.cet == installment_data.cet)
+            .where(Parcela.numero_de_parcelas == installment_data.numero_de_parcelas)
+            .where(Parcela.cotacao_id == installment_data.cotacao_id)
+            .values(installment_data.dict())
+        )
+
+        result = self.session_db.execute(stmt)
+
+        if not result.rowcount:
+            insertion_stmt = insert(Parcela).values(installment_data.dict())
+
+            self.session_db.execute(insertion_stmt)
+
+        self.session_db.commit()
