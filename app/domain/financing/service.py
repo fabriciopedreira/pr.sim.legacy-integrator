@@ -60,6 +60,7 @@ class FinancingService(ServiceBase):
                 numero_de_parcelas=data_request.installments,
                 calculadora_id=DEFAULT_CALCULATOR,
                 cidade_id=DEFAULT_CITY,
+                potencia_do_sistema=data_request.system_power,
             ),
         )
 
