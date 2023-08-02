@@ -39,3 +39,20 @@ class UsersResponse(BaseModel):
             "complete_name": "Testes",
             "perfil": "admin",
         }
+
+
+class FinancingStore(BaseModel):
+    financing_id: int
+    client_name: str
+    client_cpf: str
+    project_name: str
+    project_value: float
+    financing_stage: str
+    financing_status: str
+
+
+class FinancingStoreResponse(BaseModel):
+    data: list[FinancingStore]
+    user_id: int
+    error: bool
+    code: int
