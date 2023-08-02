@@ -12,6 +12,7 @@ class FinancingRequest(BaseModel):
     person_type: str
     financing_value: float
     down_payment: float
+    system_power: float
     grace_period: int
     project_name: str
     cet: str
@@ -35,6 +36,7 @@ class FinancingRequest(BaseModel):
                 "person_type": "PF",
                 "financing_value": 25000,
                 "down_payment": 5000,
+                "system_power": 36.08,
                 "grace_period": 4,
                 "project_name": "Lala Movie",
                 "cet": "POS_FIXADO",
