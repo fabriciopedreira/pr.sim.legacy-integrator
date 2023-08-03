@@ -27,6 +27,7 @@ def data_request():
         person_type="PF",
         financing_value=25000,
         down_payment=5000,
+        system_power=36.08,
         grace_period=4,
         project_name="Lala Movie",
         cet="POS_FIXADO",

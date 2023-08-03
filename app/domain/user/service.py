@@ -47,3 +47,32 @@ class UserService(ServiceBase):
             raise SQLAlchemyException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
         except ValidationError as exc:
             raise ValidationException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
+
+    async def get_eligible_store_financing(self, user_id: int, client_cpf: str = None):
+        try:
+
+            validate_user = await self.repository.valid_user(user_id)
+
+            if not validate_user:
+                raise NotFoundException(f"user_id {user_id}")
+
+            if not client_cpf:
+                financing = await self.repository.get_financing_MR_stage_by_user_id(user_id)
+
+                return financing
+
+            validate_document = await self.repository.valid_document(client_cpf)
+
+            if not validate_document:
+                raise NotFoundException(f"CPF {client_cpf}")
+
+            financing_for_document = await self.repository.get_financing_by_user_id_and_client_document(
+                user_id=user_id, client_cpf=client_cpf
+            )
+
+            return financing_for_document
+
+        except OperationalError as exc:
+            raise SQLAlchemyException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
+        except ValidationError as exc:
+            raise ValidationException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
