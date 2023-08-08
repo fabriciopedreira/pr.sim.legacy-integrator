@@ -72,7 +72,9 @@ class UserRepository(RepositoryBase):
 
         return result
 
-    async def get_financing_by_user_id_and_client_document(self, user_id: int, client_cpf: int) -> list[EntityModelBase]:
+    async def get_financing_by_user_id_and_client_document(
+        self, user_id: int, client_cpf: int
+    ) -> list[EntityModelBase]:
         """Get financing data by user_id and cpf of client
         :param:
             user_id: ID of the model

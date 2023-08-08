@@ -41,6 +41,8 @@ async def get_eligible_store_financing(
 
     request_user_id = get_sub(token)
 
-    financing = await UserService(repository).get_eligible_store_financing(user_id=request_user_id, client_cpf=client_cpf)
+    financing = await UserService(repository).get_eligible_store_financing(
+        user_id=request_user_id, client_cpf=client_cpf
+    )
 
     return FinancingStoreResponse(data=financing, user_id=request_user_id, code=status.HTTP_200_OK, error=False)
