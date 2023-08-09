@@ -41,10 +41,10 @@ class UsersResponse(BaseModel):
         }
 
 
-class FinancingStore(BaseModel):
+class StoreResponse(BaseModel):
     financing_id: int
-    client_name: str
-    client_cpf: str
+    client_name: str | None
+    document: str
     project_name: str
     project_value: float
     financing_stage: str
@@ -52,7 +52,7 @@ class FinancingStore(BaseModel):
 
 
 class FinancingStoreResponse(BaseModel):
-    data: list[FinancingStore]
+    data: list[StoreResponse]
     user_id: int
     error: bool
     code: int

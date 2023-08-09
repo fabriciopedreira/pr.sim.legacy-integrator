@@ -262,9 +262,7 @@ class Recebimento(EntityModelBase):
     pagamento_realizado = Column(Boolean, nullable=False, default=False)
     fornecedor_pago = Column(Boolean, nullable=False, default=False)
     opcao_marketplace = Column(Boolean, nullable=False, default=True)
-    comentarios_adicionais = Column(
-        String(255), nullable=False, default="Compra do kit realizado pela integracao com a Loja"
-    )
+    comentarios_adicionais = Column(String(255), nullable=False, default="integracaoLoja")
 
     fornecedor_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.fornecedor.id"), nullable=True)
 

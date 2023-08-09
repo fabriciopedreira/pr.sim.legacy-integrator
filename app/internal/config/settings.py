@@ -93,5 +93,5 @@ DEFAULT_CITY = config("DEFAULT_CITY", cast=int, default=18)
 DEFAULT_PROVIDER = config("DEFAULT_PROVIDER", cast=int, default=1)
 
 # for create new Modelo de Recebimento
-DEFAULT_EMAIL_PROVIDER = config("DEFAULT_EMAIL_PROVIDER", cast=str, default="financeiro@turboferro.com.br")
-DEFAULT_STORE_PROVIDER = config("DEFAULT_STORE_PROVIDER", cast=int, default=8028)
+DEFAULT_EMAIL_PROVIDER = config("DEFAULT_EMAIL_PROVIDER", cast=str, default=False)
+DEFAULT_STORE_PROVIDER = config("DEFAULT_STORE_PROVIDER", cast=int, default=False)
