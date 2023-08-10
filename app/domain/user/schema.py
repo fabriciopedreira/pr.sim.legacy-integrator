@@ -1,15 +1,15 @@
 from pydantic import BaseModel
-
+from typing import Optional
 
 class UserDTO(BaseModel):
     id: int
     confirmed: bool
-    parceiro_id: int
-    nome_completo: str
+    parceiro_id: Optional[int]
+    nome_completo: Optional[str]
     perfil: str
-    contato_id: int
-    contato_celular: str
-    contato_email: str
+    contato_id: Optional[int]
+    contato_celular: Optional[str]
+    contato_email: Optional[str]
 
 
 class PartnerResponse(BaseModel):
