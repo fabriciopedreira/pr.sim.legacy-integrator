@@ -10,7 +10,7 @@ from app.internal.config import (
     set_up_logger,
     set_up_sentry_sdk,
 )
-from app.routers import financing, healthcheck, legacy_reading_query, user, welcome
+from app.routers import financing, healthcheck, legacy_reading_query, store, user, welcome
 
 __version__ = PROJECT_VERSION_API
 
@@ -40,7 +40,8 @@ def create_app() -> FastAPI:
     app.include_router(router=welcome)
     app.include_router(router=legacy_reading_query.router, tags=["Legacy"])
     app.include_router(router=financing.financing_router, tags=["Financing"])
-    app.include_router(router=healthcheck.router, tags=["Health"])
     app.include_router(router=user.router, tags=["User"])
+    app.include_router(router=store.store_router, tags=["Store"])
+    app.include_router(router=healthcheck.router, tags=["Health"])
 
     return app

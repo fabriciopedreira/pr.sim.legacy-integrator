@@ -26,6 +26,7 @@ class FinancingRequest(BaseModel):
     taxa_de_cadastro: float
     commission: float
     document: str
+    created_at: str
 
     class Config:
         schema_extra = {
@@ -50,6 +51,7 @@ class FinancingRequest(BaseModel):
                 "taxa_de_cadastro": 1.99,
                 "commission": 1.0,
                 "document": "111.111.111-11",
+                "created_at": "2023-08-12 14:20:00"
             }
         }
 

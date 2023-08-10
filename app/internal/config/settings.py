@@ -91,3 +91,7 @@ BEARER_TOKEN = config("BEARER_TOKEN", cast=str, default="")
 DEFAULT_CALCULATOR = config("DEFAULT_CALCULATOR", cast=int, default=70)
 DEFAULT_CITY = config("DEFAULT_CITY", cast=int, default=18)
 DEFAULT_PROVIDER = config("DEFAULT_PROVIDER", cast=int, default=1)
+
+# for create new Modelo de Recebimento
+DEFAULT_EMAIL_PROVIDER = config("DEFAULT_EMAIL_PROVIDER", cast=str, default=False)
+DEFAULT_STORE_PROVIDER = config("DEFAULT_STORE_PROVIDER", cast=int, default=False)

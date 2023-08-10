@@ -3,3 +3,8 @@ from enum import Enum
 
 class FinancingStage(str, Enum):
     contract_signing = "assinatura_do_contrato"
+
+
+class FinancingType(str, Enum):
+    cnpj = "PJ"
+    cpf = "PF"

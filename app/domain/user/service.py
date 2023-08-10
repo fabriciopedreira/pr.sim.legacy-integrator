@@ -1,5 +1,6 @@
 import traceback
 from dataclasses import dataclass
+from typing import Any
 
 from pydantic import ValidationError
 from sqlalchemy.exc import OperationalError
@@ -8,6 +9,7 @@ from app.domain.common.exception_base import NotFoundException, SQLAlchemyExcept
 from app.domain.common.service_base import ServiceBase
 from app.domain.user.repository import UserRepository
 from app.domain.user.schema import ContactResponse, PartnerResponse, UsersResponse
+from app.enum import FinancingType
 from app.internal.utils import exc_info
 
 
@@ -48,31 +50,31 @@ class UserService(ServiceBase):
         except ValidationError as exc:
             raise ValidationException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
 
-    async def get_eligible_store_financing(self, user_id: int, client_cpf: str = None):
-        try:
+    async def get_eligible_store_financing(
+        self, user_id: int, document: str = None, document_type: FinancingType = FinancingType.cpf
+    ) -> Any:
 
-            validate_user = await self.repository.valid_user(user_id)
+        try:
+            validate_user = await self.repository.valid_user(user_id=user_id)
 
             if not validate_user:
                 raise NotFoundException(f"user_id {user_id}")
 
-            if not client_cpf:
-                financing = await self.repository.get_financing_MR_stage_by_user_id(user_id)
+            if not document:
+                return await self.repository.get_financing_MR_stage(user_id=user_id, document_type=document_type)
 
-                return financing
-
-            validate_document = await self.repository.valid_document(client_cpf)
-
-            if not validate_document:
-                raise NotFoundException(f"CPF {client_cpf}")
-
-            financing_for_document = await self.repository.get_financing_by_user_id_and_client_document(
-                user_id=user_id, client_cpf=client_cpf
-            )
-
-            return financing_for_document
+            return await self._get_financing_client(user_id=user_id, document=document, document_type=document_type)
 
         except OperationalError as exc:
             raise SQLAlchemyException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
         except ValidationError as exc:
             raise ValidationException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
+
+    async def _get_financing_client(self, user_id: int, document: str, document_type: str) -> Any:
+        valid_document = await self.repository.valid_document(document_type=document_type, document=document)
+
+        if not valid_document:
+            raise NotFoundException(f"Document {document} and {document_type}")
+        return await self.repository.get_financing_MR_stage(
+            user_id=user_id, document=document, document_type=document_type
+        )

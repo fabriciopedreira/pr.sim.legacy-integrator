@@ -1,4 +1,5 @@
 from sqlalchemy import BigInteger, Boolean, Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -86,6 +87,7 @@ class Financiamento(EntityModelBase):
     cotacao_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cotacao.id"))
     parceiro_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.parceiro.id"))
     user_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.users.id"))
+    recebimento_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.recebimento.id"))
 
     cliente = relationship("Cliente", back_populates="financiamento")
     empresa = relationship("Empresa", back_populates="financiamento")
@@ -93,6 +95,7 @@ class Financiamento(EntityModelBase):
     parceiro = relationship("Parceiro", back_populates="financiamento")
     users = relationship("Users", back_populates="financiamento")
     clicksign = relationship("Clicksign", back_populates="financiamento")
+    recebimento = relationship("Recebimento", back_populates="financiamento")
 
 
 class Formalizacao(EntityModelBase):
@@ -208,6 +211,8 @@ class Fornecedor(EntityModelBase):
     users = relationship("Users", back_populates="fornecedor")
     cotacao = relationship("Cotacao", back_populates="fornecedor")
 
+    recebimento = relationship("Recebimento", back_populates="fornecedor")
+
 
 class Calculadora(EntityModelBase):
     __tablename__ = "calculadora"
@@ -243,3 +248,23 @@ class Clicksign(EntityModelBase):
     financiamento_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.financiamento.id"))
 
     financiamento = relationship("Financiamento", back_populates="clicksign")
+
+
+class Recebimento(EntityModelBase):
+    __tablename__ = "recebimento"
+
+    valor_do_equipamento = Column(Float, nullable=False)
+
+    email_contato_fornecedor = Column(String(128), nullable=True)
+    marketplace_product_details = Column(JSONB, nullable=True)
+
+    valor_diferenca_vkit = Column(Float, nullable=True, default=0)
+    pagamento_realizado = Column(Boolean, nullable=False, default=False)
+    fornecedor_pago = Column(Boolean, nullable=False, default=False)
+    opcao_marketplace = Column(Boolean, nullable=False, default=True)
+    comentarios_adicionais = Column(String(255), nullable=False, default="integracaoLoja")
+
+    fornecedor_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.fornecedor.id"), nullable=True)
+
+    fornecedor = relationship("Fornecedor", back_populates="recebimento")
+    financiamento = relationship("Financiamento", back_populates="recebimento")

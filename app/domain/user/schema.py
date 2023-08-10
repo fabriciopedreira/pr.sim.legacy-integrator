@@ -41,10 +41,10 @@ class UsersResponse(BaseModel):
         }
 
 
-class FinancingStore(BaseModel):
+class StoreResponse(BaseModel):
     financing_id: int
-    client_name: str
-    client_cpf: str
+    client_name: str | None
+    document: str
     project_name: str
     project_value: float
     financing_stage: str
@@ -52,7 +52,27 @@ class FinancingStore(BaseModel):
 
 
 class FinancingStoreResponse(BaseModel):
-    data: list[FinancingStore]
+    data: list[StoreResponse]
     user_id: int
     error: bool
     code: int
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "data": [
+                    {
+                        "financing_id": 888888,
+                        "client_name": "Marta Vieira da Silva",
+                        "client_cpf": "000.000.000-000",
+                        "project_name": "PLACA SOLAR",
+                        "project_value": 24000.0,
+                        "financing_stage": "analise_do_contrato",
+                        "financing_status": "aprovado",
+                    }
+                ],
+                "user_id": 74393,
+                "error": False,
+                "code": 200,
+            }
+        }
