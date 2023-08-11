@@ -18,16 +18,16 @@ class PartnerResponse(BaseModel):
 
 class ContactResponse(BaseModel):
     id: int
-    email: str
-    phone: str
+    email: Optional[str]
+    phone: Optional[str]
 
 
 class UsersResponse(BaseModel):
     id: int
     confirmed: bool
-    contact: ContactResponse
-    partner: PartnerResponse
-    complete_name: str
+    contact: Optional[ContactResponse]
+    partner: Optional[PartnerResponse]
+    complete_name: Optional[str]
     perfil: str
 
     class Config:
