@@ -13,11 +13,11 @@ class UserDTO(BaseModel):
 
 
 class PartnerResponse(BaseModel):
-    id: int
+    id: Optional[int]
 
 
 class ContactResponse(BaseModel):
-    id: int
+    id: Optional[int]
     email: Optional[str]
     phone: Optional[str]
 
