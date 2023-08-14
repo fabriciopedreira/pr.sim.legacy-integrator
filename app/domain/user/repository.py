@@ -64,11 +64,13 @@ class UserRepository(RepositoryBase):
             if document
             else True
         )
+
         query_dynamic_join = (
-            Cliente,
-            Cliente.id == Financiamento.cliente_id if document_type == FinancingType.cpf else Empresa,
-            Empresa.id == Financiamento.empresa_id,
+            (Cliente, Cliente.id == Financiamento.cliente_id)
+            if document_type == FinancingType.cpf
+            else (Empresa, Empresa.id == Financiamento.empresa_id)
         )
+
         query_client_name = Cliente.nome_completo if document_type == FinancingType.cpf else Empresa.nome_fantasia
         query_client_document = Cliente.cpf if document_type == FinancingType.cpf else Empresa.cnpj
 
