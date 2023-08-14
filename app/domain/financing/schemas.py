@@ -1,8 +1,10 @@
 import uuid
 from random import randint
-from typing import Any, Optional
+from typing import Optional
 
 from pydantic import UUID4, BaseModel, confloat
+
+from app.domain.legacy_query.enums import TipoPessoa
 
 
 class FinancingRequest(BaseModel):
@@ -34,7 +36,7 @@ class FinancingRequest(BaseModel):
                 "project_id": uuid.uuid4(),
                 "partner_id": 1,
                 "user_id": 1,
-                "person_type": "PF",
+                "person_type": TipoPessoa.PESSOA_FISICA,
                 "financing_value": 25000,
                 "down_payment": 5000,
                 "system_power": 36.08,

@@ -12,9 +12,9 @@ jobs:
         image: postgres
         env:
           POSTGRES_PORT: 5432
-          POSTGRES_PASSWORD: solfacil
-          POSTGRES_USER: solfacil
-          POSTGRES_DB: solfacil
+          POSTGRES_PASSWORD: solfacil_local_dev
+          POSTGRES_USER: solfacil_local_dev
+          POSTGRES_DB: solfacil_local_dev
         ports:
           - 5432:5432
 

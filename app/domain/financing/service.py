@@ -19,6 +19,7 @@ from app.domain.common.service_base import ServiceBase
 from app.domain.financing.financial_calcs import convert_registration_fee_to_total_amount, pgto
 from app.domain.financing.repository import FinancingRepository
 from app.domain.financing.schemas import InstallmentData
+from app.domain.legacy_query.enums import TipoPessoa
 from app.enum import FinancingStage
 from app.internal.config import DEFAULT_CALCULATOR, DEFAULT_CITY, DEFAULT_PROVIDER
 from app.internal.utils import exc_info, format_document, parse_ipca, parser_person_type, sanitize_document
@@ -84,17 +85,17 @@ class FinancingService(ServiceBase):
         CNPJ_LENGTH = 14
 
         valid_sizes = [CPF_LENGTH, CNPJ_LENGTH]
-        if not size_document in valid_sizes:
-            raise ParamsException(model=Financiamento.__tablename__, detail="Invalid Document")
+        if size_document not in valid_sizes:
+            raise ParamsException(model=Financiamento.__table__, detail="Invalid Document")
 
         document_parsed = format_document(size_document, document_sanetized)
 
-        if data_request.person_type == "PF" and size_document == CPF_LENGTH:
+        if data_request.person_type == TipoPessoa.PESSOA_FISICA and size_document == CPF_LENGTH:
             financing.cliente = Cliente(cpf=document_parsed)
-        elif data_request.person_type == "PJ" and size_document == CNPJ_LENGTH:
+        elif data_request.person_type == TipoPessoa.PESSOA_JURIDICA and size_document == CNPJ_LENGTH:
             financing.empresa = Empresa(cnpj=document_parsed)
         else:
-            raise ParamsException(model=Financiamento.__tablename__, detail="Invalid person_type")
+            raise ParamsException(model=Financiamento.__table__, detail="Invalid person_type")
 
         return financing
 

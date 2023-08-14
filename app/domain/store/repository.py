@@ -2,19 +2,19 @@ from typing import Any, Dict, Optional
 
 from sqlalchemy import update
 
-from app.domain.common.legacy_model import Cotacao, EntityModelBase, Financiamento
+from app.domain.common.legacy_model import Cotacao, Financiamento
 from app.domain.common.repository_base import RepositoryBase
 
 
 class StoreRepository(RepositoryBase):
-    async def save(self, model) -> EntityModelBase:
+    async def save(self, model) -> Any:
         self.session_db.add(model)
         self.session_db.commit()
         self.session_db.refresh(model)
         return model
 
     async def update(
-        self, model: EntityModelBase, model_id: int, values: Dict[str, Any], commit: Optional[bool] = True
+        self, model: Any, model_id: int, values: Dict[str, Any], commit: Optional[bool] = True
     ) -> tuple[Any] | None:
         """Update BaseModel in database
         :param model: Model
@@ -31,7 +31,7 @@ class StoreRepository(RepositoryBase):
             self.session_db.commit()
             return model_id
 
-    async def get_financing_data_by_financing_id(self, financing_id: int) -> EntityModelBase:
+    async def get_financing_data_by_financing_id(self, financing_id: int) -> Any:
         """Get financing_value by financing_id
         :param: financing_id: ID of the Financiamento table
 

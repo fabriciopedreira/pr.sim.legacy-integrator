@@ -1,270 +1,128 @@
-from sqlalchemy import BigInteger, Boolean, Column, DateTime, Float, ForeignKey, Integer, String
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
-
 from app.database import Base
-from app.internal.config import DATABASE_SCHEMA
 
-
-class EntityModelBase(Base):
-    __abstract__ = True
-    __table_args__ = {"schema": DATABASE_SCHEMA}
-
-    id = Column(BigInteger, primary_key=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
-
-
-class ProdutoFinanceiro(EntityModelBase):
-    __tablename__ = "produto_financeiro"
-
-    slug = Column(String(255))
-
-
-class Cliente(EntityModelBase):
-    __tablename__ = "cliente"
-
-    cpf = Column(String(32))
-    nome_completo = Column(String(128))
-
-    financiamento = relationship("Financiamento", back_populates="cliente")
-
-
-class Empresa(EntityModelBase):
-    __tablename__ = "empresa"
-
-    cnpj = Column(String(32))
-    nome_fantasia = Column(String(128))
-
-    financiamento = relationship("Financiamento", back_populates="empresa")
-
-
-class TipoDeFinanciamento(EntityModelBase):
-    __tablename__ = "tipo_de_financiamento"
-
-    nome = Column(String(32))
-    tipo = Column(String(8))
-
-
-class Bancarizadora(EntityModelBase):
-    __tablename__ = "bancarizadora"
-
-    nome = Column(String(255))
-
-
-class Contrato(EntityModelBase):
-    __tablename__ = "contrato"
-
-    produto_financeiro_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.produto_financeiro.id"))
-    estimativa_de_emprestimo_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.emprestimo.id"))
-    upload_drive_data = Column(DateTime(timezone=True))
-
-
-class Emprestimo(EntityModelBase):
-    __tablename__ = "emprestimo"
-
-    numero_ccb = Column(String(32))
-    cliente_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cliente.id"))
-    avalista_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cliente.id"))
-
-
-class Financiamento(EntityModelBase):
-    __tablename__ = "financiamento"
-
-    etapa = Column(String(64))
-    status = Column(String(16))
-    deletado = Column(Boolean, default=False)
-    inativo = Column(Boolean, default=False)
-    combo_facil = Column(Boolean, default=False)
-
-    cliente_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cliente.id"))
-    empresa_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.empresa.id"))
-    contrato_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.contrato.id"))
-    emprestimo_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.emprestimo.id"))
-    bancarizadora_id = Column(BigInteger, ForeignKey(f"{DATABASE_SCHEMA}.bancarizadora.id"))
-    tipo_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.tipo_de_financiamento.id"))
-    cotacao_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cotacao.id"))
-    parceiro_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.parceiro.id"))
-    user_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.users.id"))
-    recebimento_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.recebimento.id"))
-
-    cliente = relationship("Cliente", back_populates="financiamento")
-    empresa = relationship("Empresa", back_populates="financiamento")
-    cotacao = relationship("Cotacao", back_populates="financiamento")
-    parceiro = relationship("Parceiro", back_populates="financiamento")
-    users = relationship("Users", back_populates="financiamento")
-    clicksign = relationship("Clicksign", back_populates="financiamento")
-    recebimento = relationship("Recebimento", back_populates="financiamento")
-
-
-class Formalizacao(EntityModelBase):
-    __tablename__ = "formalizacao"
-
-    financiamento_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.financiamento.id"))
-
-
-class Cessao(EntityModelBase):
-    __tablename__ = "cessao"
-
-    produto_financeiro_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.produto_financeiro.id"))
-
-
-class CessaoFormalizacao(EntityModelBase):
-    __tablename__ = "cessao_formalizacao"
-
-    cessao_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cessao.id"))
-    formalizacao_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.formalizacao.id"))
-
-
-class Parcela(EntityModelBase):
-    __tablename__ = "parcela"
-
-    numero_de_parcelas = Column(Integer, nullable=True)
-    iof = Column(Float, nullable=True)
-    cet = Column(String(16), nullable=True)
-    valor_da_parcela = Column(Float, nullable=True)
-    taxa_de_juros = Column(Float, nullable=True)
-    taxa_de_cadastro = Column(Float, nullable=True)
-    valor_da_comissao = Column(Float, nullable=True)
-    aliquota_iof = Column(Float, nullable=True)
-
-    cotacao_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cotacao.id"), nullable=True)
-
-    cotacao = relationship("Cotacao", back_populates="parcelas")
-
-
-class Comissao(EntityModelBase):
-    __tablename__ = "comissao"
-
-    valor = Column(Float, nullable=True)
-    tipo = Column(String(16), nullable=True, default="comissao")
-    pagamento_realizado = Column(Boolean, default=False)
-    cotacao = relationship("Cotacao", back_populates="comissao")
-
-
-class Cotacao(EntityModelBase):
-    __tablename__ = "cotacao"
-
-    valor_do_projeto = Column(Float)
-    nome_do_projeto = Column(String(128))
-    entrada = Column(Float)
-    carencia = Column(Integer)
-    numero_de_parcelas = Column(Integer)
-    geracao_mensal = Column(Integer)
-    cet = Column(String(16))
-    envia_carencia = Column(Boolean, default=False)
-    valor_original_financiado = Column(Float)
-    potencia_do_sistema = Column(Float)
-    ipca = Column(String(255))
-    ipca_vigente = Column(String(255))
-    calculadora_selecionada_id = Column(String(255))
-    external_simulation_id = Column(String(255))
-
-    fornecedor_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.fornecedor.id"), nullable=True)
-    calculadora_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.calculadora.id"), nullable=True)
-    cidade_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.cidade.id"), nullable=True)
-    comissao_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.comissao.id"))
-
-    financiamento = relationship("Financiamento", back_populates="cotacao")
-    fornecedor = relationship("Fornecedor", back_populates="cotacao")
-    calculadora = relationship("Calculadora", back_populates="cotacao")
-    cidade = relationship("Cidade", back_populates="cotacao")
-    comissao = relationship("Comissao", back_populates="cotacao")
-
-    parcelas = relationship(
-        "Parcela",
-        back_populates="cotacao",
-        primaryjoin="Parcela.cotacao_id==Cotacao.id",
-        lazy=True,
-        order_by="Parcela.numero_de_parcelas",
-    )
-
-
-class Parceiro(EntityModelBase):
-    __tablename__ = "parceiro"
-
-    financiamento = relationship("Financiamento", back_populates="parceiro")
-    users = relationship("Users", back_populates="parceiro")
-
-
-class Users(EntityModelBase):
-    __tablename__ = "users"
-
-    confirmed = Column(Boolean, default=False, nullable=True)
-    nome_completo = Column(String(255), nullable=True)
-    perfil = Column(String(128), nullable=True)
-
-    fornecedor_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.fornecedor.id"))
-    parceiro_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.parceiro.id"))
-    contato_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.contato.id"))
-
-    contato = relationship("Contato", back_populates="users")
-    parceiro = relationship("Parceiro", back_populates="users")
-    financiamento = relationship("Financiamento", back_populates="users")
-    fornecedor = relationship("Fornecedor", back_populates="users")
-
-
-class Fornecedor(EntityModelBase):
-    __tablename__ = "fornecedor"
-
-    users = relationship("Users", back_populates="fornecedor")
-    cotacao = relationship("Cotacao", back_populates="fornecedor")
-
-    recebimento = relationship("Recebimento", back_populates="fornecedor")
-
-
-class Calculadora(EntityModelBase):
-    __tablename__ = "calculadora"
-
-    cotacao = relationship("Cotacao", back_populates="calculadora")
-
-
-class Cidade(EntityModelBase):
-    __tablename__ = "cidade"
-
-    cotacao = relationship("Cotacao", back_populates="cidade")
-
-
-class Contato(EntityModelBase):
-    __tablename__ = "contato"
-
-    celular = Column(String(16), nullable=True)
-    email = Column(String(128), nullable=True)
-
-    users = relationship("Users", back_populates="contato")
-
-
-class Clicksign(EntityModelBase):
-    __tablename__ = "clicksign"
-
-    tipo_documento = Column(String(128), nullable=True)
-
-    solicitado_por_email = Column(Boolean, nullable=False, default=False)
-    solicitado_por_whatsapp = Column(Boolean, nullable=False, default=False)
-    avalista_solicitado_por_email = Column(Boolean, nullable=False, default=False)
-    avalista_solicitado_por_whatsapp = Column(Boolean, nullable=False, default=False)
-
-    financiamento_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.financiamento.id"))
-
-    financiamento = relationship("Financiamento", back_populates="clicksign")
-
-
-class Recebimento(EntityModelBase):
-    __tablename__ = "recebimento"
-
-    valor_do_equipamento = Column(Float, nullable=False)
-
-    email_contato_fornecedor = Column(String(128), nullable=True)
-    marketplace_product_details = Column(JSONB, nullable=True)
-
-    valor_diferenca_vkit = Column(Float, nullable=True, default=0)
-    pagamento_realizado = Column(Boolean, nullable=False, default=False)
-    fornecedor_pago = Column(Boolean, nullable=False, default=False)
-    opcao_marketplace = Column(Boolean, nullable=False, default=True)
-    comentarios_adicionais = Column(String(255), nullable=False, default="integracaoLoja")
-
-    fornecedor_id = Column(Integer, ForeignKey(f"{DATABASE_SCHEMA}.fornecedor.id"), nullable=True)
-
-    fornecedor = relationship("Fornecedor", back_populates="recebimento")
-    financiamento = relationship("Financiamento", back_populates="recebimento")
+Access = Base.classes.access
+Analise = Base.classes.analise
+ApiKeys = Base.classes.api_keys
+Apolice = Base.classes.apolice
+AreaAtuacao = Base.classes.area_atuacao
+AuditLog = Base.classes.audit_log
+AuthLog = Base.classes.auth_log
+AutoConsumoRemoto = Base.classes.auto_consumo_remoto
+Aviso = Base.classes.aviso
+AvisoUser = Base.classes.aviso_user
+AwsdmsDdlAudit = Base.classes.awsdms_ddl_audit
+Bancarizadora = Base.classes.bancarizadora
+Biometria = Base.classes.biometria
+BiometriaDocumento = Base.classes.biometria_documento
+BiometriaDocumentoTipo = Base.classes.biometria_documento_tipo
+BiometriaStatus = Base.classes.biometria_status
+Calculadora = Base.classes.calculadora
+Cessao = Base.classes.cessao
+CessaoFormalizacao = Base.classes.cessao_formalizacao
+CheckList = Base.classes.check_list
+Cidade = Base.classes.cidade
+ClickSign = Base.classes.clicksign
+Cliente = Base.classes.cliente
+Cobertura = Base.classes.cobertura
+CodigoBancario = Base.classes.codigo_bancario
+Comissao = Base.classes.comissao
+ConfigAccess = Base.classes.config_access
+ConfiguracaoEletrica = Base.classes.configuracao_eletrica
+Consulta = Base.classes.consulta
+ConsultaCampos = Base.classes.consulta_campos
+Contato = Base.classes.contato
+Contrato = Base.classes.contrato
+ContratoDigital = Base.classes.contrato_digital
+ContratoDigitalSignatario = Base.classes.contrato_digital_signatario
+Cotacao = Base.classes.cotacao
+DadoBancario = Base.classes.dado_bancario
+DebeziumHeartbeat = Base.classes.debezium_heartbeat
+DesligamentoRemoto = Base.classes.desligamento_remoto
+Distribuidor = Base.classes.distribuidor
+Documentacao = Base.classes.documentacao
+Documento = Base.classes.documento
+Empresa = Base.classes.empresa
+Emprestimo = Base.classes.emprestimo
+Endereco = Base.classes.endereco
+Estado = Base.classes.estado
+Financiamento = Base.classes.financiamento
+FinanciamentoCancelado = Base.classes.financiamento_cancelado
+FinanciamentoMotivoCancelamento = Base.classes.financiamento_motivo_cancelamento
+FinanciamentoPontuacao = Base.classes.financiamento_pontuacao
+FinanciamentoSeguroTaxa = Base.classes.financiamento_seguro_taxa
+Formalizacao = Base.classes.formalizacao
+Fornecedor = Base.classes.fornecedor
+Group = Base.classes.group
+HistoricoCcb = Base.classes.historico_ccb
+Homologacao = Base.classes.homologacao
+IndiceSolarimetrico = Base.classes.indice_solarimetrico
+Instalacao = Base.classes.instalacao
+Inversor = Base.classes.inversor
+Lead = Base.classes.lead
+LeadHistory = Base.classes.lead_history
+LogTrocaDispositivo = Base.classes.log_troca_dispositivo
+MailQueue = Base.classes.mail_queue
+ModeloDeInversor = Base.classes.modelo_de_inversor
+Modulo = Base.classes.modulo
+Monitoramento = Base.classes.monitoramento
+Mppt = Base.classes.mppt
+Pagamento = Base.classes.pagamento
+PagamentoLog = Base.classes.pagamento_log
+Parceiro = Base.classes.parceiro
+ParceiroFornecedor = Base.classes.parceiro_fornecedor
+ParceiroNivel = Base.classes.parceiro_nivel
+ParceiroPlano = Base.classes.parceiro_plano
+ParceiroPontuacao = Base.classes.parceiro_pontuacao
+ParceiroStatus = Base.classes.parceiro_status
+Parcela = Base.classes.parcela
+Pesquisa = Base.classes.pesquisa
+Plano = Base.classes.plano
+Prazo = Base.classes.prazo
+ProdutoFinanceiro = Base.classes.produto_financeiro
+ProdutoRural = Base.classes.produto_rural
+Profissao = Base.classes.profissao
+Projeto = Base.classes.projeto
+RealWatts = Base.classes.real_watts
+Recebimento = Base.classes.recebimento
+RelatorioAcesso = Base.classes.relatorio_acesso
+RepresentanteLegal = Base.classes.representante_legal
+RepresentanteLegalProdutoFinanceiro = Base.classes.representante_legal_produto_financeiro
+Role = Base.classes.role
+Seguradora = Base.classes.seguradora
+Seguro = Base.classes.seguro
+SeguroCobertura = Base.classes.seguro_cobertura
+SeguroEmprestimo = Base.classes.seguro_emprestimo
+SeguroRegra = Base.classes.seguro_regra
+SeguroTaxa = Base.classes.seguro_taxa
+SeguroTaxaRegra = Base.classes.seguro_taxa_regra
+SeguroTipo = Base.classes.seguro_tipo
+ServicoEntrega = Base.classes.servico_entrega
+Signatario = Base.classes.signatario
+Simulacao = Base.classes.simulacao
+SmartMeter = Base.classes.smart_meter
+SmartMeterInversor = Base.classes.smart_meter_inversor
+Submissao = Base.classes.submissao
+SystemModule = Base.classes.system_module
+SystemModulePermission = Base.classes.system_module_permission
+SystemPermission = Base.classes.system_permission
+SystemProfile = Base.classes.system_profile
+SystemProfileModule = Base.classes.system_profile_module
+SystemRole = Base.classes.system_role
+SystemRoleProfile = Base.classes.system_role_profile
+Tarifa = Base.classes.tarifa
+TermoAdesaoSeguro = Base.classes.termo_adesao_seguro
+TermoAutorizacao = Base.classes.termo_autorizacao
+TipoDeCadastro = Base.classes.tipo_de_cadastro
+TipoDeFinanciamento = Base.classes.tipo_de_financiamento
+TipoSimulacao = Base.classes.tipo_simulacao
+Titular = Base.classes.titular
+TitularContaDeLuz = Base.classes.titular_conta_de_luz
+Transferencia = Base.classes.transferencia
+TransferenciaAuditoria = Base.classes.transferencia_auditoria
+TransferenciaLog = Base.classes.transferencia_log
+UnidadeBeneficiaria = Base.classes.unidade_beneficiaria
+UnidadeGeradora = Base.classes.unidade_geradora
+UserCredential = Base.classes.user_credential
+UserStatus = Base.classes.user_status
+Users = Base.classes.users
+Validacao = Base.classes.validacao

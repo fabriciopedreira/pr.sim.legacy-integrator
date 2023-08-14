@@ -1,9 +1,10 @@
 from sqlalchemy import and_, or_
 
-from app.domain.common.legacy_model import Cliente, Contato, Cotacao, Empresa, EntityModelBase, Financiamento, Users
+from app.domain.common.legacy_model import Cliente, Contato, Cotacao, Empresa, Financiamento, Users
 from app.domain.common.repository_base import RepositoryBase
 from app.domain.user.schema import UserDTO
 from app.enum import FinancingType
+from typing import Any
 
 
 class UserRepository(RepositoryBase):
@@ -11,7 +12,7 @@ class UserRepository(RepositoryBase):
         """Get information of user by id
         :param: user_id: ID of the model
 
-        :return: EntityModelBase or None
+        :return: UserDTO or None
         """
         result = (
             self.session_db.query(
@@ -45,7 +46,7 @@ class UserRepository(RepositoryBase):
 
     async def get_financing_MR_stage(
         self, user_id: int, document_type: FinancingType, document: str = None
-    ) -> list[EntityModelBase]:
+    ) -> list[Any]:
         """
         Retrieves the financing stage for a given user and document.
 
@@ -90,6 +91,34 @@ class UserRepository(RepositoryBase):
                     and_(Financiamento.etapa == "analise_do_contrato", Financiamento.status == "aprovado"),
                     and_(Financiamento.etapa == "recebimento", Financiamento.status == "em_andamento"),
                 ),
+            )
+            .all()
+        )
+
+        return result
+
+    async def get_financing_by_user_id_and_client_document(self, user_id: int, client_cpf: int) -> list[Any]:
+        """Get financing data by user_id and cpf of client
+        :param:
+            user_id: ID of the model
+            document: cpf of client in financing
+        :return: list[EntityModelBase]
+        """
+        result = (
+            self.session_db.query(
+                Financiamento.id.label("financing_id"),
+                Financiamento.etapa.label("financing_stage"),
+                Financiamento.status.label("financing_status"),
+                Cotacao.nome_do_projeto.label("project_name"),
+                Cliente.nome_completo.label("client_name"),
+                Cotacao.valor_do_projeto.label("project_value"),
+                Cliente.cpf.label("client_cpf"),
+            )
+            .join(Cotacao, Cotacao.id == Financiamento.cotacao_id)
+            .join(Cliente, Cliente.id == Financiamento.cliente_id)
+            .filter(
+                Financiamento.user_id == user_id,
+                Cliente.cpf == client_cpf,
             )
             .all()
         )
