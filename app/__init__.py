@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from app.enum import BuildEnvironment
 
 from app.internal.config import (
     MODE,
@@ -21,7 +22,7 @@ def create_app() -> FastAPI:
 
     openapi_url = "/openapi.json"
 
-    if MODE == "PRD":
+    if MODE == BuildEnvironment.prd:
         # Configure ddtrace integration (Tracer)
         set_up_ddtrace()
         # Configure sentry_sdk integration (sentry_sdk)

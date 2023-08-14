@@ -82,6 +82,7 @@ async def update_financing(
         registration_fee=data_request.taxa_de_cadastro,
         commission=data_request.commission,
         system_power=data_request.system_power,
+        addons=data_request.addons,
     )
 
     return FinancingUpdateResponse(

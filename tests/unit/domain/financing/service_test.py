@@ -5,6 +5,7 @@ import pytest
 from app.domain.common.exception_base import ParamsException
 from app.domain.financing.schemas import FinancingRequest
 from app.domain.financing.service import FinancingService
+from app.domain.legacy_query.enums import TipoPessoa
 
 
 @pytest.fixture
@@ -24,7 +25,7 @@ def data_request():
         project_id="2ade5cff-63f3-445b-a912-db6f24727dc7",
         partner_id=1,
         user_id=1,
-        person_type="PF",
+        person_type=TipoPessoa.PESSOA_FISICA,
         financing_value=25000,
         down_payment=5000,
         system_power=36.08,
@@ -41,13 +42,13 @@ def data_request():
         taxa_de_cadastro=1.99,
         commission=1.0,
         document="111.111.111-11",
-        created_at="2023-07-12 14:20:00"
+        created_at="2023-07-12 14:20:00",
     )
 
 
 @pytest.mark.asyncio
 async def test_person_type_different_of_document(financing_service, data_request):
-    personal_type_invalid = "PJ"
+    personal_type_invalid = TipoPessoa.PESSOA_JURIDICA
     data_request.person_type = personal_type_invalid
 
     with pytest.raises(ParamsException) as exception_info:
@@ -94,7 +95,7 @@ async def test_creating_financing_with_CPF_succes(financing_service, data_reques
 @pytest.mark.asyncio
 async def test_creating_financing_with_CNPJ_succes(financing_service, data_request):
     valid_document_for_CNPJ = "11.111.111/1111-11"
-    person_type_for_CNPJ = "PJ"
+    person_type_for_CNPJ = TipoPessoa.PESSOA_JURIDICA
 
     data_request.person_type = person_type_for_CNPJ
     data_request.document = valid_document_for_CNPJ

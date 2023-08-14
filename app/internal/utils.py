@@ -2,11 +2,13 @@ import sys
 import time
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Callable
+from typing import Any, Callable
 
 import jwt
 from async_lru import alru_cache
 from loguru import logger
+
+from app.domain.legacy_query.enums import TipoPessoa
 
 
 def exc_info():
@@ -69,7 +71,7 @@ def cache(seconds: int, maxsize: int = 128):
 
 
 def parser_person_type(person_type: str) -> int | None:
-    return {"PF": 1, "PJ": 2, "PR": 3}.get(person_type.upper(), None)
+    return {TipoPessoa.PESSOA_FISICA: 1, TipoPessoa.PESSOA_JURIDICA: 2, TipoPessoa.PRODUTOR_RURAL: 3}.get(person_type.upper(), None)
 
 
 def parse_ipca(cet, ipca):
@@ -112,3 +114,23 @@ def get_sub(token: str) -> int:
         return int(payload.get("sub", 0))
     except Exception:
         return 0
+
+
+def get_month_by_number(mount_number: int) -> str:
+    """Get month by number
+    :param: mount_number: number of month
+    """
+    return {
+        1: "Janeiro",
+        2: "Fevereiro",
+        3: "Março",
+        4: "Abril",
+        5: "Maio",
+        6: "Junho",
+        7: "Julho",
+        8: "Agosto",
+        9: "Setembro",
+        10: "Outubro",
+        11: "Novembro",
+        12: "Dezembro",
+    }.get(mount_number, "Mês inválido")

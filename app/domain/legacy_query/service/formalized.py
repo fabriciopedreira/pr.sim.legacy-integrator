@@ -3,7 +3,7 @@ from datetime import datetime
 
 from app.domain.common.service_base import ServiceBase, try_query_except
 from app.domain.legacy_query.repository.formalized import FormalizedRepository
-from app.domain.legacy_query.schemas import FormalizedResponse
+from app.domain.legacy_query.schemas import FormalizedFinancingResponse, FormalizedResponse
 
 
 @dataclass
@@ -35,3 +35,7 @@ class FormalizedService(ServiceBase):
             )
         )
         return self.query_result(result=formalizations)
+
+    async def get_formalized_financing(self, financing_ids: list[int]) -> FormalizedFinancingResponse:
+        formalized_financing = await self.repository.get_formalized_financing(financing_ids)
+        return formalized_financing

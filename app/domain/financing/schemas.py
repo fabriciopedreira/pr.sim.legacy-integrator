@@ -1,8 +1,27 @@
 import uuid
+from enum import Enum
 from random import randint
-from typing import Any, Optional
+from typing import Optional
 
 from pydantic import UUID4, BaseModel, confloat
+
+from app.domain.legacy_query.enums import TipoPessoa
+
+
+class AddonType(str, Enum):
+    insurance = "insurance"
+
+
+class Addon(BaseModel):
+    product_name: str
+    product_external_id: Optional[uuid.UUID]
+    simulation_id: uuid.UUID
+    type: AddonType
+    product_slug: Optional[str]
+    applied: bool
+    partner_commission: float
+    installment_price: float
+    total_price: float
 
 
 class FinancingRequest(BaseModel):
@@ -26,6 +45,7 @@ class FinancingRequest(BaseModel):
     taxa_de_cadastro: float
     commission: float
     document: str
+    addons: Optional[list[Addon]] = None
     created_at: str
 
     class Config:
@@ -34,7 +54,7 @@ class FinancingRequest(BaseModel):
                 "project_id": uuid.uuid4(),
                 "partner_id": 1,
                 "user_id": 1,
-                "person_type": "PF",
+                "person_type": TipoPessoa.PESSOA_FISICA,
                 "financing_value": 25000,
                 "down_payment": 5000,
                 "system_power": 36.08,
@@ -51,7 +71,7 @@ class FinancingRequest(BaseModel):
                 "taxa_de_cadastro": 1.99,
                 "commission": 1.0,
                 "document": "111.111.111-11",
-                "created_at": "2023-08-12 14:20:00"
+                "created_at": "2023-08-12 14:20:00",
             }
         }
 
@@ -103,6 +123,7 @@ class FinancingUpdateRequest(BaseModel):
     taxa_de_juros: float
     taxa_de_cadastro: float
     commission: confloat(ge=0.0, le=5.0)
+    addons: Optional[list[Addon]] = None
 
     class Config:
         schema_extra = {

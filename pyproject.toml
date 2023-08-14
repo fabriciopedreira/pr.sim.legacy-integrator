@@ -27,7 +27,8 @@ sentry-sdk = "^1.12.1"
 SQLAlchemy = "^1.4.45"
 SQLAlchemy-Utils = "^0.39.0"
 toml = "^0.10.2"
-uvicorn = {extras = ["standard"], version = "^0.20.0"}
+uvicorn = { extras = ["standard"], version = "^0.20.0" }
+python-dateutil = "^2.8.2"
 
 # Dev dependencies .....................................................................................................
 
@@ -86,19 +87,12 @@ exclude_dirs = ["venv", ".venv", "env", ".env", "scripts"]
 # Testes ...............................................................................................................
 
 [tool.coverage.run]
-concurrency = [
-    'multiprocessing'
-]
+concurrency = ['multiprocessing']
 parallel = true
 sigterm = true
 branch = true
-source = [
-    'app/'
-]
-omit = [
-    ".*",
-    "*/test/*"
-]
+source = ['app/']
+omit = [".*", "*/test/*"]
 
 [tool.coverage.report]
 show_missing = true
@@ -107,9 +101,7 @@ fail_under = 30
 skip_empty = true
 
 [tool.coverage.paths]
-source = [
-    'app/'
-]
+source = ['app/']
 
 # Build ................................................................................................................
 

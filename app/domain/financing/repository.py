@@ -3,19 +3,19 @@ from typing import Any, Dict, Optional
 
 from sqlalchemy import insert, update
 
-from app.domain.common.legacy_model import Clicksign, Comissao, Cotacao, EntityModelBase, Financiamento, Parcela
+from app.domain.common.legacy_model import ClickSign, Cotacao, Financiamento, Parcela
 from app.domain.common.repository_base import RepositoryBase
 from app.domain.financing.schemas import FinancingCotationDTO, InstallmentData
 
 
 class FinancingRepository(RepositoryBase):
-    async def save(self, model) -> EntityModelBase:
+    async def save(self, model) -> Any:
         self.session_db.add(model)
         self.session_db.commit()
         self.session_db.refresh(model)
         return model
 
-    async def remove(self, model: EntityModelBase, model_id: int, commit: Optional[bool] = True) -> tuple[Any] | None:
+    async def remove(self, model: Any, model_id: int, commit: Optional[bool] = True) -> tuple[Any] | None:
 
         result = self.session_db.query(model).filter_by(id=model_id).one_or_none()
 
@@ -29,7 +29,7 @@ class FinancingRepository(RepositoryBase):
         return None
 
     async def update(
-        self, model: EntityModelBase, model_id: int, values: Dict[str, Any], commit: Optional[bool] = True
+        self, model: Any, model_id: int, values: Dict[str, Any], commit: Optional[bool] = True
     ) -> tuple[Any] | None:
         """Update BaseModel in database
         :param model: Model
@@ -49,12 +49,12 @@ class FinancingRepository(RepositoryBase):
 
         return None
 
-    async def get(self, model: EntityModelBase, model_id: int) -> EntityModelBase | None:
+    async def get(self, model: Any, model_id: int) -> Any | None:
         result = self.session_db.query(model).filter_by(id=model_id).one_or_none()
 
         return result
 
-    async def get_financing_by_project_id(self, project_id: uuid.UUID) -> EntityModelBase | None:
+    async def get_financing_by_project_id(self, project_id: uuid.UUID) -> Any | None:
 
         result = (
             self.session_db.query(Financiamento.etapa, Financiamento.id)
@@ -68,26 +68,26 @@ class FinancingRepository(RepositoryBase):
     async def is_contract_clicksign_by_financing_id(self, financing_id: uuid.UUID) -> bool | None:
 
         result = (
-            self.session_db.query(Clicksign)
-            .join(Financiamento, Clicksign.financiamento_id == Financiamento.id)
-            .filter(Financiamento.id == str(financing_id), Clicksign.tipo_documento == "contrato")
+            self.session_db.query(ClickSign)
+            .join(Financiamento, ClickSign.financiamento_id == Financiamento.id)
+            .filter(Financiamento.id == str(financing_id), ClickSign.tipo_documento == "contrato")
             .count()
         )
 
         return result == 0
 
-    async def get_contract_by_financing_id(self, financing_id: uuid.UUID) -> EntityModelBase | None:
+    async def get_contract_by_financing_id(self, financing_id: uuid.UUID) -> Any | None:
 
         result = (
-            self.session_db.query(Clicksign)
-            .join(Financiamento, Clicksign.financiamento_id == Financiamento.id)
-            .filter(Financiamento.id == str(financing_id), Clicksign.tipo_documento == "contrato")
+            self.session_db.query(ClickSign)
+            .join(Financiamento, ClickSign.financiamento_id == Financiamento.id)
+            .filter(Financiamento.id == str(financing_id), ClickSign.tipo_documento == "contrato")
             .one_or_none()
         )
 
         return result
 
-    async def get_parcela_by_quotation_id(self, quotation_id: uuid.UUID) -> EntityModelBase | None:
+    async def get_parcela_by_quotation_id(self, quotation_id: uuid.UUID) -> Any | None:
 
         result = (
             self.session_db.query(Parcela)
@@ -100,7 +100,7 @@ class FinancingRepository(RepositoryBase):
 
         return result
 
-    async def get_parcela144x_by_quotation_id(self, quotation_id: uuid.UUID) -> EntityModelBase | None:
+    async def get_parcela144x_by_quotation_id(self, quotation_id: uuid.UUID) -> Any | None:
 
         result = (
             self.session_db.query(Parcela)
