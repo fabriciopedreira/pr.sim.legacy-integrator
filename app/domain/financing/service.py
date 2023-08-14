@@ -1,6 +1,8 @@
+import functools
 import traceback
 import uuid
 from dataclasses import dataclass
+from typing import Optional
 
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -18,7 +20,7 @@ from app.domain.common.legacy_model import Cliente, Comissao, Cotacao, Empresa, 
 from app.domain.common.service_base import ServiceBase
 from app.domain.financing.financial_calcs import convert_registration_fee_to_total_amount, pgto
 from app.domain.financing.repository import FinancingRepository
-from app.domain.financing.schemas import InstallmentData
+from app.domain.financing.schemas import Addon, InstallmentData
 from app.domain.legacy_query.enums import TipoPessoa
 from app.enum import FinancingStage
 from app.internal.config import DEFAULT_CALCULATOR, DEFAULT_CITY, DEFAULT_PROVIDER
@@ -29,12 +31,57 @@ from app.internal.utils import exc_info, format_document, parse_ipca, parser_per
 class FinancingService(ServiceBase):
     repository: FinancingRepository
 
+    def _get_insurance_addons_installment_price(self, addons: list[Addon]) -> float:
+        """
+        !!!
+        This is needed due to the fact that insurance addons are not included in the total price in the Legacy calculation, but is included in the total price of the installment from external simulation.
+        Calculates the total price of the insurance addons.
+
+        Args:
+            addons (list[Addon]): A list of addon objects.
+
+        Returns:
+            float: The total price of the insurance addons.
+        """
+
+        return functools.reduce(
+            lambda x, y: x + y,
+            [addon.installment_price for addon in addons if addon.applied == True and addon.type.value == "insurance"],
+            0,
+        )
+
+    def _get_insurance_addons_price(self, addons: list[Addon]) -> float:
+        """
+        !!!
+        This is needed due to the fact that insurance addons are not included in the total price in the Legacy calculation, but is included in the total price of the installment from external simulation.
+        Calculates the total price of the insurance addons.
+
+        Args:
+            addons (list[Addon]): A list of addon objects.
+
+        Returns:
+            float: The total price of the insurance addons.
+        """
+
+        return functools.reduce(
+            lambda x, y: x + y,
+            [addon.total_price for addon in addons if addon.applied == True and addon.type.value == "insurance"],
+            0,
+        )
+
     async def create_financing(self, data_request):
         try:
+
+            applied_insurance_installment_values = 0
+            applied_insurance_price = 0
+            if data_request.addons:
+                applied_insurance_installment_values = self._get_insurance_addons_installment_price(data_request.addons)
+                applied_insurance_price = self._get_insurance_addons_price(data_request.addons)
+
             financing_data = await self.financing_data(data_request)
 
             financing = await self.repository.save(financing_data)
-            await self.save_parcela(financing_data, data_request)
+            await self.save_parcela(financing_data, data_request, applied_insurance_installment_values, applied_insurance_price)
         except OperationalError as exc:
             raise SQLAlchemyException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
         except ValidationError as exc:
@@ -99,13 +146,17 @@ class FinancingService(ServiceBase):
 
         return financing
 
-    async def save_parcela(self, financing, data_request):
+    async def save_parcela(self, financing, data_request, applied_insurance_installment_amount, applied_insurance_total_price):
         # TODO valor_financiado and taxa_de_cadastro_bruta needs to come from Product-pricing
         financing_value = data_request.financing_value - data_request.down_payment
+
+        installment_value = data_request.installment_value - applied_insurance_installment_amount
 
         taxa_de_cadastro_bruto = convert_registration_fee_to_total_amount(
             financing_value, data_request.taxa_de_cadastro
         )
+
+        registration_fee_without_insurance = taxa_de_cadastro_bruto - applied_insurance_total_price
 
         parcela = Parcela(
             cotacao_id=financing.cotacao_id,
@@ -113,9 +164,9 @@ class FinancingService(ServiceBase):
             iof=data_request.iof,
             aliquota_iof=data_request.aliquot_iof,
             numero_de_parcelas=data_request.installments,
-            valor_da_parcela=data_request.installment_value,
+            valor_da_parcela=installment_value,
             taxa_de_juros=data_request.taxa_de_juros,
-            taxa_de_cadastro=taxa_de_cadastro_bruto,
+            taxa_de_cadastro=registration_fee_without_insurance,
             valor_da_comissao=await calculate_gross_commission(
                 commission=data_request.commission, financed_value=financing_value
             ),
@@ -125,7 +176,7 @@ class FinancingService(ServiceBase):
 
         if data_request.installments != 144:
             parcela_144x = await calculate_144x_installment(
-                financing, financing_value, data_request.taxa_de_juros, taxa_de_cadastro_bruto
+                financing=financing, financed_amount=financing_value, monthly_interest_rate=data_request.taxa_de_juros, total_registration_fee=registration_fee_without_insurance
             )
 
             await self.repository.save(parcela_144x)
@@ -147,8 +198,15 @@ class FinancingService(ServiceBase):
         registration_fee: float,
         commission: float,
         system_power: float | None = None,
+        addons: Optional[list[Addon]] = None,
     ):
         try:
+
+            applied_insurance_installment_values = 0
+            applied_insurance_price = 0
+            if addons:
+                applied_insurance_installment_values = self._get_insurance_addons_installment_price(addons)
+                applied_insurance_price = self._get_insurance_addons_price(addons)
 
             can_update = await self.can_update_financing(project_id)
 
@@ -193,8 +251,8 @@ class FinancingService(ServiceBase):
                 cet=cet,
                 cotacao_id=data_financing.quotation_id,
                 numero_de_parcelas=installments,
-                valor_da_parcela=installment_value,
-                taxa_de_cadastro=raw_registration_fee,
+                valor_da_parcela=(installment_value - applied_insurance_installment_values),
+                taxa_de_cadastro=(raw_registration_fee - applied_insurance_price),
                 taxa_de_juros=taxa_de_juros,
                 valor_da_comissao=await calculate_gross_commission(
                     commission=commission, financed_value=financing_value
