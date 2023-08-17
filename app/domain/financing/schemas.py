@@ -10,6 +10,7 @@ from app.domain.legacy_query.enums import TipoPessoa
 
 class AddonType(str, Enum):
     insurance = "insurance"
+    ampera = "ampera"
 
 
 class Addon(BaseModel):
