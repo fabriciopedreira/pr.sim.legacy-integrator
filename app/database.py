@@ -24,7 +24,6 @@ metadata_pickle_filename = "binary_db_metadata"
 cache_path = os.path.join(os.getcwd(), ".sqlalchemy_cache")
 cached_metadata = None
 
-
 try:
     if MODE == BuildEnvironment.prd:
         patch(sqlalchemy=True)  # patch before importing `create_engine`
@@ -48,13 +47,39 @@ except IOError:
     logger.warning("[-] Cache database metadata file not found")
     pass
 
+
+def name_for_scalars(base, local_cls, referred_cls, constraint):
+    if local_cls.__name__ == 'financiamento' and referred_cls.__name__ == 'cliente':
+        if constraint.name == 'financiamento_cliente_id_fkey':
+            return 'cliente'
+        elif constraint.name == 'financiamento_avalista_id_fkey':
+            return 'avalista'
+    return referred_cls.__name__.lower()
+
+def name_for_collections(base, local_cls, referred_cls, constraint):
+    if local_cls.__name__ == 'cliente' and referred_cls.__name__ == 'financiamento':
+        if constraint.name == 'financiamento_cliente_id_fkey':
+            return 'cliente_financiamentos'
+        elif constraint.name == 'financiamento_avalista_id_fkey':
+            return 'avalista_financiamentos'
+    return referred_cls.__name__.lower() + "_collection"
+
+
 if cached_metadata:
     Base = automap_base(declarative_base(bind=engine, metadata=cached_metadata))
-    Base.prepare()
+    Base.prepare(
+        name_for_scalar_relationship=name_for_scalars,
+        name_for_collection_relationship=name_for_collections
+    )
 else:
     logger.warning("[-] Automap base it will take a while, be patient :)")
     Base = automap_base()
-    Base.prepare(engine, reflect=True)  # reflect the tables
+    Base.prepare(
+        engine,
+        reflect=True,
+        name_for_scalar_relationship=name_for_scalars,
+        name_for_collection_relationship=name_for_collections
+    )  # reflect the tables
 
     # save the metadata for future runs
     try:
