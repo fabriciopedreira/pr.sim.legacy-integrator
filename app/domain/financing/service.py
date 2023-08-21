@@ -122,7 +122,7 @@ class FinancingService(ServiceBase):
             financing.cotacao.fornecedor_id = DEFAULT_PROVIDER
 
         if data_request.commission > 0 and data_request.commission <= 5:
-            financing.cotacao.comissao = Comissao(valor=data_request.commission, tipo="comissao", pagamento_realizado="false")
+            financing.cotacao.comissao = Comissao(valor=data_request.commission, tipo="comissao", pagamento_realizado=False)
 
         return await self.save_document(financing, data_request)
 
