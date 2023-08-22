@@ -313,7 +313,7 @@ class FinancingService(ServiceBase):
         if commission == 0:
             return None
 
-        return await self.repository.save(Comissao(valor=commission))
+        return await self.repository.save(Comissao(valor=commission, tipo="comissao"))
 
     async def can_update_financing(self, project_id: uuid.UUID) -> bool | NotFoundException:
         """
