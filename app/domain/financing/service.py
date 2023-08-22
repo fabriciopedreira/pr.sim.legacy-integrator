@@ -7,24 +7,28 @@ from typing import Optional
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.domain.common.exception_base import (
-    InsertDBException,
-    NotFoundException,
-    ParamsException,
-    ResponseException,
-    ServiceBadRequestException,
-    SQLAlchemyException,
-    ValidationException,
-)
-from app.domain.common.legacy_model import Cliente, Comissao, Cotacao, Empresa, Financiamento, Parcela
+from app.domain.common.exception_base import (InsertDBException,
+                                              NotFoundException,
+                                              ParamsException,
+                                              ResponseException,
+                                              ServiceBadRequestException,
+                                              SQLAlchemyException,
+                                              ValidationException)
+from app.domain.common.legacy_model import (Cliente, Comissao,
+                                            ConfiguracaoEletrica, Cotacao,
+                                            Empresa, Financiamento, Parcela,
+                                            SmartMeter)
 from app.domain.common.service_base import ServiceBase
-from app.domain.financing.financial_calcs import convert_registration_fee_to_total_amount, pgto
+from app.domain.financing.financial_calcs import (
+    convert_registration_fee_to_total_amount, pgto)
 from app.domain.financing.repository import FinancingRepository
-from app.domain.financing.schemas import Addon, InstallmentData
+from app.domain.financing.schemas import Addon, AddonType, InstallmentData
 from app.domain.legacy_query.enums import TipoPessoa
 from app.enum import FinancingStage
-from app.internal.config import DEFAULT_CALCULATOR, DEFAULT_CITY, DEFAULT_PROVIDER
-from app.internal.utils import exc_info, format_document, parse_ipca, parser_person_type, sanitize_document
+from app.internal.config import (DEFAULT_CALCULATOR, DEFAULT_CITY,
+                                 DEFAULT_PROVIDER)
+from app.internal.utils import (exc_info, format_document, parse_ipca,
+                                parser_person_type, sanitize_document)
 
 
 @dataclass
@@ -68,6 +72,30 @@ class FinancingService(ServiceBase):
             [addon.total_price for addon in addons if addon.applied == True and addon.type.value == "insurance"],
             0,
         )
+    
+    def _has_ampera(self, addons: list[Addon]) -> bool:
+        """
+        Returns if ampera is included in addons
+
+        Args:
+            addons (list[Addon]): A list of addon objects.
+
+        Returns:
+            bool: If financing has ampera
+        """
+        if addons:
+            return any(addon.type == AddonType.ampera for addon in addons)
+        return False
+    
+    def _create_ampera_if_doesnt_exists(self, financing_id: int):
+        smart_meter = self.repository.get_smart_meter_by_financing_id(financing_id)
+        if not smart_meter:
+            self.repository.create_smart_meter(financing_id)
+
+    def _remove_ampera_if_exists(self, financing_id: int):
+        smart_meter = self.repository.get_smart_meter_by_financing_id(financing_id)
+        if smart_meter:
+            self.repository.delete_smart_meter(smart_meter.id)
 
     async def create_financing(self, data_request):
         try:
@@ -206,6 +234,7 @@ class FinancingService(ServiceBase):
 
             applied_insurance_installment_values = 0
             applied_insurance_price = 0
+            has_ampera = self._has_ampera(addons)
             if addons:
                 applied_insurance_installment_values = self._get_insurance_addons_installment_price(addons)
                 applied_insurance_price = self._get_insurance_addons_price(addons)
@@ -262,6 +291,11 @@ class FinancingService(ServiceBase):
             )
 
             await self.repository.create_or_update_installments(installment)
+
+            if has_ampera:
+                self._create_ampera_if_doesnt_exists(data_financing.financing_id)
+            else:
+                self._remove_ampera_if_exists(data_financing.financing_id)
 
             return data_financing.financing_id
 
