@@ -1,10 +1,11 @@
+from typing import Any
+
 from sqlalchemy import and_, or_
 
 from app.domain.common.legacy_model import Cliente, Contato, Cotacao, Empresa, Financiamento, Users
 from app.domain.common.repository_base import RepositoryBase
 from app.domain.user.schema import UserDTO
 from app.enum import FinancingType
-from typing import Any
 
 
 class UserRepository(RepositoryBase):

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from app.enum import BuildEnvironment
 
+from app.enum import BuildEnvironment
 from app.internal.config import (
     MODE,
     PROJECT_CONTACT_API,

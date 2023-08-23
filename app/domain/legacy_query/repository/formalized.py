@@ -31,11 +31,11 @@ from app.domain.common.legacy_model import (
 from app.domain.common.repository_base import RepositoryBase
 from app.domain.legacy_query.enums import TipoPessoa, ValidacaoEtapa, ValidacaoStatus
 from app.domain.legacy_query.schemas import (
-    Document,
     Address,
     BankData,
     Contact,
     Customer,
+    Document,
     File,
     FinancialProduct,
     Financing,
@@ -458,7 +458,7 @@ class FormalizedRepository(RepositoryBase):
 
                 for tipo in tipos:
                     value = getattr(document, tipo)
-                    is_guarantor = True if 'avalista' in tipo else False
+                    is_guarantor = True if "avalista" in tipo else False
 
                     if value and isinstance(value, str):
                         comprovantes_documento_de_identidade = value.split("|")
@@ -480,9 +480,11 @@ class FormalizedRepository(RepositoryBase):
                                 )
 
                     if value and isinstance(value, list):
-                          for item in value:
+                        for item in value:
                             try:
-                                documento, financiamento_id_, _, tipo_comprovante, nome_arquivo = item["value"].split("/")
+                                documento, financiamento_id_, _, tipo_comprovante, nome_arquivo = item["value"].split(
+                                    "/"
+                                )
                                 documents.append(
                                     {
                                         "is_guarantor": is_guarantor,
@@ -522,7 +524,8 @@ class FormalizedRepository(RepositoryBase):
         return ""
 
     def _get_all_docs(self, financiamento_id: int) -> list[Document]:
-        query = text(f"""
+        query = text(
+            f"""
                 SELECT 
                     d.documento_de_identidade               client_documento_de_identidade,
                     d.documentos_adicionais                 client_documentos_adicionais,
@@ -550,7 +553,8 @@ class FormalizedRepository(RepositoryBase):
                 LEFT JOIN documento d   ON co.documento_cliente_id = d.id
                 LEFT JOIN documento d2  ON co.documento_avalista_id = d2.id
                 WHERE f.id = {financiamento_id}
-               """)
+               """
+        )
 
         if financimento_info := self.session_db.execute(query).fetchall():
             return [Document(**financimento._mapping) for financimento in financimento_info]

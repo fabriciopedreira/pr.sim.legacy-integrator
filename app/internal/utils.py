@@ -71,7 +71,9 @@ def cache(seconds: int, maxsize: int = 128):
 
 
 def parser_person_type(person_type: str) -> int | None:
-    return {TipoPessoa.PESSOA_FISICA: 1, TipoPessoa.PESSOA_JURIDICA: 2, TipoPessoa.PRODUTOR_RURAL: 3}.get(person_type.upper(), None)
+    return {TipoPessoa.PESSOA_FISICA: 1, TipoPessoa.PESSOA_JURIDICA: 2, TipoPessoa.PRODUTOR_RURAL: 3}.get(
+        person_type.upper(), None
+    )
 
 
 def parse_ipca(cet, ipca):
