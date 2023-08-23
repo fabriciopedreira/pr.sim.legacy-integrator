@@ -65,6 +65,8 @@ class StoreService(ServiceBase):
                 email_contato_fornecedor=DEFAULT_EMAIL_PROVIDER,
                 fornecedor_id=DEFAULT_STORE_PROVIDER,
                 valor_do_equipamento=total,
+                integration_store=True,
+                valor_diferenca_vkit=0,
             )
 
             if total > data.financing_value:

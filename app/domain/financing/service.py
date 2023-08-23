@@ -109,7 +109,9 @@ class FinancingService(ServiceBase):
             financing_data = await self.financing_data(data_request)
 
             financing = await self.repository.save(financing_data)
-            await self.save_parcela(financing_data, data_request, applied_insurance_installment_values, applied_insurance_price)
+            await self.save_parcela(
+                financing_data, data_request, applied_insurance_installment_values, applied_insurance_price
+            )
         except OperationalError as exc:
             raise SQLAlchemyException(stacktrace=traceback.format_exception_only(*exc_info())) from exc
         except ValidationError as exc:
@@ -150,7 +152,9 @@ class FinancingService(ServiceBase):
             financing.cotacao.fornecedor_id = DEFAULT_PROVIDER
 
         if data_request.commission > 0 and data_request.commission <= 5:
-            financing.cotacao.comissao = Comissao(valor=data_request.commission, tipo="comissao", pagamento_realizado=False)
+            financing.cotacao.comissao = Comissao(
+                valor=data_request.commission, tipo="comissao", pagamento_realizado=False
+            )
 
         return await self.save_document(financing, data_request)
 
@@ -176,7 +180,9 @@ class FinancingService(ServiceBase):
 
         return financing
 
-    async def save_parcela(self, financing, data_request, applied_insurance_installment_amount, applied_insurance_total_price):
+    async def save_parcela(
+        self, financing, data_request, applied_insurance_installment_amount, applied_insurance_total_price
+    ):
         # TODO valor_financiado and taxa_de_cadastro_bruta needs to come from Product-pricing
         financing_value = data_request.financing_value - data_request.down_payment
 
@@ -206,7 +212,10 @@ class FinancingService(ServiceBase):
 
         if data_request.installments != 144:
             parcela_144x = await calculate_144x_installment(
-                financing=financing, financed_amount=financing_value, monthly_interest_rate=data_request.taxa_de_juros, total_registration_fee=registration_fee_without_insurance
+                financing=financing,
+                financed_amount=financing_value,
+                monthly_interest_rate=data_request.taxa_de_juros,
+                total_registration_fee=registration_fee_without_insurance,
             )
 
             await self.repository.save(parcela_144x)

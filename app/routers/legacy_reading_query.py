@@ -7,7 +7,6 @@ from app.domain.legacy_query.service.formalized import FormalizedService
 from app.internal.config.settings import ACCESS_VALIDATION
 from app.internal.utils import latency
 
-
 router = (
     APIRouter(prefix="/legacy", dependencies=[Depends(access_validation)])
     if not ACCESS_VALIDATION
