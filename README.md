@@ -19,7 +19,7 @@ This document presents the basic information of the **API - Legacy Integrator (S
 
 4. [Contacts](#4-Contacts)
 
-# 1. Product Overview
+# 1. Product Overview 
 
 |                              |                                                                  |
 | -----------------------------|------------------------------------------------------------------|

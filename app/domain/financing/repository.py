@@ -3,7 +3,10 @@ from typing import Any, Dict, Optional
 
 from sqlalchemy import insert, update
 
-from app.domain.common.legacy_model import ClickSign, Cotacao, Financiamento, Parcela
+from app.domain.common.legacy_model import (ClickSign, ConfiguracaoEletrica,
+                                            Cotacao, Financiamento, Inversor,
+                                            Parcela, SmartMeter,
+                                            SmartMeterInversor)
 from app.domain.common.repository_base import RepositoryBase
 from app.domain.financing.schemas import FinancingCotationDTO, InstallmentData
 
@@ -53,7 +56,49 @@ class FinancingRepository(RepositoryBase):
         result = self.session_db.query(model).filter_by(id=model_id).one_or_none()
 
         return result
+    
+    def get_smart_meter_by_financing_id(self, financing_id: int) -> Any | None:
+        result = (self.session_db.query(SmartMeter)
+            .join(ConfiguracaoEletrica, SmartMeter.configuracao_eletrica_id == ConfiguracaoEletrica.id)
+            .join(Financiamento, Financiamento.configuracao_eletrica_id == ConfiguracaoEletrica.id)
+            .filter_by(id=financing_id)
+            .one_or_none()
+        )
+        return result
+    
+    def delete_smart_meter(self, smart_meter_id: int) -> Any | None:
+        inversors = self.session_db.query(SmartMeterInversor).filter_by(smart_meter_id=smart_meter_id).all()
+        for inversor in inversors:
+            self.session_db.delete(inversor)
+        
+        result = self.session_db.query(SmartMeter).filter_by(id=smart_meter_id).one_or_none()
+        self.session_db.delete(result)
 
+        self.session_db.commit()
+
+        return True
+    
+    def create_smart_meter(self, financing_id: int) -> Any | None:
+        inversors = (self.session_db.query(Inversor)
+                     .join(ConfiguracaoEletrica, Inversor.configuracao_eletrica_id == ConfiguracaoEletrica.id)
+                     .join(Financiamento, Financiamento.configuracao_eletrica_id == ConfiguracaoEletrica.id)
+                     .filter_by(id=financing_id)
+                     .all())
+        configuracao_eletrica_id = (self.session_db.query(Financiamento.configuracao_eletrica_id)
+                                    .filter_by(id=financing_id)
+                                    .scalar())
+        smart_meter = SmartMeter(configuracao_eletrica_id=configuracao_eletrica_id)
+        self.session_db.add(smart_meter)
+        self.session_db.commit()
+        self.session_db.refresh(smart_meter)
+        for inversor in inversors:
+            smart_meter_inversor = SmartMeterInversor(smart_meter_id=smart_meter.id, inversor_id=inversor.id)
+            self.session_db.add(smart_meter_inversor)
+        
+        self.session_db.commit()
+
+        return True
+     
     async def get_financing_by_project_id(self, project_id: uuid.UUID) -> Any | None:
 
         result = (
