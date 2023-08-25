@@ -100,44 +100,19 @@ class UserRepository(RepositoryBase):
 
         return result
 
-    async def get_financing_by_user_id_and_client_document(self, user_id: int, client_cpf: int) -> list[Any]:
-        """Get financing data by user_id and cpf of client
-        :param:
-            user_id: ID of the model
-            document: cpf of client in financing
-        :return: list[EntityModelBase]
-        """
-        result = (
-            self.session_db.query(
-                Financiamento.id.label("financing_id"),
-                Financiamento.etapa.label("financing_stage"),
-                Financiamento.status.label("financing_status"),
-                Cotacao.nome_do_projeto.label("project_name"),
-                Cliente.nome_completo.label("client_name"),
-                Cotacao.valor_do_projeto.label("project_value"),
-                Cliente.cpf.label("client_cpf"),
-            )
-            .join(Cotacao, Cotacao.id == Financiamento.cotacao_id)
-            .join(Cliente, Cliente.id == Financiamento.cliente_id)
-            .filter(
-                Financiamento.user_id == user_id,
-                Cliente.cpf == client_cpf,
-            )
-            .all()
-        )
-
-        return result
-
     async def valid_user(self, user_id: int) -> bool:
-        user = self.session_db.query(Users.id).filter_by(id=user_id).one_or_none()
+        query = self.session_db.query(Users.id).filter_by(id=user_id).first()
 
-        return user is not None
+        return query is not None
 
     async def valid_document(self, document_type: str, document: str) -> bool:
         if document_type == FinancingType.cpf:
-            document = self.session_db.query(Cliente.cpf).filter_by(cpf=document).one_or_none()
+            query = self.session_db.query(Cliente.cpf).filter_by(cpf=document).first()
 
         elif document_type == FinancingType.cnpj:
-            document = self.session_db.query(Empresa.cnpj).filter_by(cnpj=document).one_or_none()
+            query = self.session_db.query(Empresa.cnpj).filter_by(cnpj=document).first()
 
-        return document is not None
+        else:
+            return False
+
+        return query is not None
