@@ -355,9 +355,9 @@ class FormalizedRepository(RepositoryBase):
     def _get_insurance(self, financiamento_id: int) -> list[Insurance]:
         seguros = (
             self.session_db.query(SeguroEmprestimo.valor_adicional_parcela, Seguro.nome, SeguroTipo.nome)
-            .select_from(Financiamento)
-            .join(Emprestimo, Emprestimo.id == Financiamento.emprestimo_id)
-            .join(SeguroEmprestimo, SeguroEmprestimo.emprestimo_id == Emprestimo.id)
+            .select_from(SeguroEmprestimo)
+            .join(Emprestimo, Emprestimo.id == SeguroEmprestimo.emprestimo_id)
+            .join(Financiamento, Financiamento.emprestimo_id == Emprestimo.id)
             .join(FinanciamentoSeguroTaxa, FinanciamentoSeguroTaxa.id == SeguroEmprestimo.financiamento_seguro_taxa_id)
             .join(SeguroTaxa, SeguroTaxa.id == FinanciamentoSeguroTaxa.seguro_taxa_id)
             .join(Seguro, Seguro.id == SeguroTaxa.seguro_id)
