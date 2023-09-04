@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from fastapi.encoders import jsonable_encoder
+from loguru import logger
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
@@ -73,6 +74,8 @@ class StoreService(ServiceBase):
                 receipt_model.valor_diferenca_vkit = total - data.financing_value
 
             recebimento_insert = await self.repository.save(receipt_model)
+
+            logger.info(f"Receipt created: {recebimento_insert}")
 
             await self.repository.update(
                 model=Financiamento, model_id=financing_id, values={"recebimento_id": recebimento_insert.id}

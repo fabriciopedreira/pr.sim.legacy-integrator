@@ -3,7 +3,7 @@ from starlette import status
 
 from app.dependencies import access_validation, access_validation_fixed_token, get_repository
 from app.domain.store.repository import StoreRepository
-from app.domain.store.schema import KitsPurchase, Product, Shipping, StoreResponse
+from app.domain.store.schema import KitsPurchase, StoreResponse
 from app.domain.store.service import StoreService
 from app.internal.config.settings import ACCESS_VALIDATION
 from app.internal.utils import latency
