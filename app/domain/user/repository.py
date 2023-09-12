@@ -2,7 +2,7 @@ from typing import Any
 
 from sqlalchemy import and_, or_
 
-from app.domain.common.legacy_model import Cliente, Contato, Cotacao, Empresa, Financiamento, Users
+from app.domain.common.legacy_model import Cliente, Contato, Cotacao, Empresa, Financiamento, Users, Projeto
 from app.domain.common.repository_base import RepositoryBase
 from app.domain.user.schema import UserDTO
 from app.enum import FinancingType
@@ -82,10 +82,12 @@ class UserRepository(RepositoryBase):
                 Financiamento.status.label("financing_status"),
                 Cotacao.nome_do_projeto.label("project_name"),
                 Cotacao.valor_do_projeto.label("project_value"),
+                Projeto.potencia_original_do_sistema.label("project_system_potency"),
                 query_client_name.label("client_name"),
                 query_client_document.label("document"),
             )
             .join(Cotacao, Cotacao.id == Financiamento.cotacao_id)
+            .join(Projeto, Projeto.id == Financiamento.projeto_id)
             .join(query_dynamic_join)
             .filter(
                 Financiamento.user_id == user_id,
