@@ -6,10 +6,10 @@ class FinancingStage(str, Enum):
 
 
 class BuildEnvironment(str, Enum):
-    dev = "dev"
-    prd = "prd"
-    tst = "tst"
-    hml = "hml"
+    dev = "DEV"
+    prd = "PRD"
+    tst = "TST"
+    hml = "HML"
 
 
 class FinancingType(str, Enum):

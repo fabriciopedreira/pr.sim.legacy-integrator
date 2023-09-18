@@ -10,7 +10,7 @@ ENV SERVICE_HOME=/usr/src/application \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100 \
-    MODE=DEV 
+    MODE=PRD
 
 RUN apt-get update -y &&  \
     apt-get upgrade -y &&  \
@@ -29,7 +29,7 @@ RUN pip3 install poetry && \
 RUN poetry lock --no-update && \
     poetry install --only main && \
     poetry add isort
-   
+
 EXPOSE 8000
 # where your code lives
 WORKDIR $SERVICE_HOME

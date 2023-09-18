@@ -49,6 +49,7 @@ class StoreResponse(BaseModel):
     document: str
     project_name: str
     project_value: float
+    project_system_potency: float
     financing_stage: str
     financing_status: str
 
