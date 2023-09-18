@@ -29,7 +29,7 @@ RUN pip3 install poetry && \
 RUN poetry lock --no-update && \
     poetry install --only main && \
     poetry add isort
-   
+
 EXPOSE 8000
 # where your code lives
 WORKDIR $SERVICE_HOME

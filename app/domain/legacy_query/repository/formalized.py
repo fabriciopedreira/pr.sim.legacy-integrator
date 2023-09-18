@@ -526,7 +526,7 @@ class FormalizedRepository(RepositoryBase):
     def _get_all_docs(self, financiamento_id: int) -> list[Document]:
         query = text(
             f"""
-                SELECT 
+                SELECT
                     d.documento_de_identidade               client_documento_de_identidade,
                     d.documentos_adicionais                 client_documentos_adicionais,
                     d.comprovante_de_residencia             client_comprovante_de_residencia,
